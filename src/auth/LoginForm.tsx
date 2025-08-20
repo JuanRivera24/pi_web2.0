@@ -7,7 +7,7 @@ export default function LoginForm() {
         <form action="inicio">
         <span>Usuario</span>
         <br/>
-        <input type="text" />
+        <input className="bg-red-700" type="text" />
         <span>Contraseña</span>
         <br />
         <input type="password" required/>
