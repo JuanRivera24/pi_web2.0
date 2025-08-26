@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import Navbar from "@/components/navbar/Navbar";  // 👈 Importamos el Navbar
+import Navbar from "../components/layout/Navbar";
+import Footer from "@/components/layout/Footer";
 
 export const metadata: Metadata = {
-  title: "Mi página",
-  description: "Página creada con Next.js",
+  title: "Kingdom Barber",
+  description: "La mejor barbería de Medellín 👑✂️",
 };
 
 export default function RootLayout({
@@ -14,9 +15,15 @@ export default function RootLayout({
 }) {
   return (
     <html lang="es">
-      <body>
-        <Navbar /> {/* 👈 Aquí ponemos el navbar */}
-        <main className="pt-20">{children}</main> {/* 👈 pt-20 evita que el contenido quede tapado */}
+      <body className="flex flex-col min-h-screen bg-gray-100">
+        {/* Navbar fijo arriba */}
+        <Navbar />
+
+        {/* Contenido de cada página */}
+        <main className="flex-1">{children}</main>
+
+        {/* Footer fijo abajo */}
+        <Footer />
       </body>
     </html>
   );

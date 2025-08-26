@@ -15,7 +15,7 @@ const Navbar: FC = () => {
 
 
       {/* Opciones de navegación */}
-      <ul className="flex space-x-6 text-gray-700 font-medium">
+      <ul className="flex space-x-6 text-gray-800 font-medium">
         <li>
           <Link href="/nosotros" className="hover:text-blue-600 transition">
             Nosotros
