@@ -14,7 +14,7 @@ export default function HomePage() {
                 <p className="max-w-2xl mx-auto text-lg leading-relaxed">
                     En <span className="font-semibold">Kingdom Barber</span> creemos que
                     un buen corte no solo transforma tu estilo, también eleva tu confianza.
-                    Somos más que una barbería: somos un espacio donde tradición,
+                    Somos más que una barbería: Somos un espacio donde tradición,
                     excelencia y modernidad se unen para que vivas una experiencia única.
                 </p>
                 <p className="mt-4 max-w-2xl mx-auto text-lg leading-relaxed text-gray-300">
