@@ -1,7 +1,6 @@
 "use client";
 
-import Login from "@/components/auth/LoginForm";
-import { SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
+import ContactSection from "@/components/contactform/ContactForm";
 
 export default function HomePage() {
   return (
@@ -9,7 +8,7 @@ export default function HomePage() {
       {/* Hero / Bienvenida */}
       <section className="text-center py-30 px-6 bg-gradient-to-b from-black via-gray-900 to-gray-800 text-white w-full">
         <h1 className="text-5xl font-extrabold mb-6 tracking-wide">
-          Kingdom Barber ✂️👑
+          Kingdom Barber ✂️💈
         </h1>
         <p className="max-w-2xl mx-auto text-lg leading-relaxed">
           En <span className="font-semibold">Kingdom Barber</span> creemos que
@@ -22,6 +21,9 @@ export default function HomePage() {
           el cuidado personal es parte de su reino. 💈👑
         </p>
       </section>
+
+      <ContactSection />
+      
     </main>
   );
 }

@@ -24,7 +24,7 @@ const Navbar: FC = () => {
       {/* Opciones de navegación */}
       <ul className="flex space-x-6 text-gray-800 font-medium items-center">
         <li>
-          <Link href="/nosotros" className="hover:text-blue-600 transition">
+          <Link href="/" className="hover:text-blue-600 transition">
             Nosotros
           </Link>
         </li>
