@@ -1,6 +1,7 @@
 "use client";
 
 import ContactSection from "@/components/contactform/ContactForm";
+import AppointmentsCalendar from "@/components/appointment/AppointmentCalendar";
 
 export default function HomePage() {
   return (
@@ -22,8 +23,14 @@ export default function HomePage() {
         </p>
       </section>
 
+      <section className="w-full py-12 bg-gray-100">
+        <AppointmentsCalendar />
+      </section>
+
       <ContactSection />
+
       
+
     </main>
   );
 }
