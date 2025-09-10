@@ -11,11 +11,11 @@ const Navbar: FC = () => {
   const [showRegister, setShowRegister] = useState(false);
 
   return (
-    <nav className="fixed top-0 left-0 w-full bg-blue-400 shadow-md px-6 py-4 flex justify-between items-center z-50">  
+    <nav className="fixed top-0 left-0 w-full bg-blue-400 shadow-md px-6 py-4 flex justify-between items-center z-50">
       {/* Logo */}
       <Link href="/">
         <img
-          src="https://fv5-4.files.fm/thumb_show.php?i=9gw2fhp7jp&view&v=1&PHPSESSID=194eb281d984be3fee1c1c34ab1f6e14e6a39d04"
+          src="/Images/Logo.png"
           alt="Logo de la página"
           className="h-10 w-auto"
         />
