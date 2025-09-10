@@ -3,70 +3,107 @@
 import { useState } from "react";
 import {
   Calendar,
-  momentLocalizer,
+  dateFnsLocalizer,
+  Views,
   SlotInfo,
-  Event as RBCEvent,
 } from "react-big-calendar";
-import moment from "moment";
+import { format, parse, startOfWeek, getDay } from "date-fns";
+import { es } from "date-fns/locale";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 
-const localizer = momentLocalizer(moment);
+const locales = { es };
 
-interface Appointment extends RBCEvent {
+const localizer = dateFnsLocalizer({
+  format,
+  parse,
+  startOfWeek: () => startOfWeek(new Date(), { weekStartsOn: 1 }),
+  getDay,
+  locales,
+});
+
+interface Event {
   id: number;
+  title: string;
+  start: Date;
+  end: Date;
 }
 
 export default function AppointmentCalendar() {
-  const [events, setEvents] = useState<Appointment[]>([]);
-  const [selectedEvent, setSelectedEvent] = useState<Appointment | null>(null);
+  const [events, setEvents] = useState<Event[]>([]);
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const [selectedHour, setSelectedHour] = useState<number>(10);
+  const [editingEvent, setEditingEvent] = useState<Event | null>(null);
 
-  // 📅 Restricción: no permitir fechas pasadas ni fuera de horario
-  const isValidSlot = (slot: SlotInfo) => {
+  // Horario permitido (10 AM - 10 PM)
+  const hours = Array.from({ length: 13 }, (_, i) => i + 10);
+
+  const handleSelectSlot = (slotInfo: SlotInfo) => {
     const now = new Date();
-
-    // No permitir fechas pasadas
-    if (slot.start < now) return false;
-
-    // Validar rango horario (10 AM - 10 PM)
-    const startHour = moment(slot.start).hour();
-    const endHour = moment(slot.end).hour();
-    if (startHour < 10 || endHour > 22) return false;
-
-    return true;
+    if (slotInfo.start < now) {
+      alert("❌ No puedes agendar citas en el pasado");
+      return;
+    }
+    setSelectedDate(slotInfo.start);
+    setSelectedHour(10);
+    setEditingEvent(null);
   };
 
-  // Crear cita
-  const handleSelectSlot = (slotInfo: SlotInfo) => {
-    if (!isValidSlot(slotInfo)) {
-      alert("❌ Solo puedes agendar entre 10 AM y 10 PM y no en fechas pasadas.");
+  const handleSaveAppointment = () => {
+    if (!selectedDate) return;
+
+    const start = new Date(selectedDate);
+    start.setHours(selectedHour, 0, 0);
+    const end = new Date(start);
+    end.setHours(start.getHours() + 1);
+
+    // Contar cuántas citas ya existen en esta hora
+    const citasEnHora = events.filter(
+      (event) => event.start.getTime() === start.getTime()
+    );
+
+    if (citasEnHora.length >= 2) {
+      alert("⚠️ Ya hay 2 citas en esta hora. Escoge otra.");
       return;
     }
 
-    const title = prompt("Ingrese el motivo de la cita:");
-    if (title) {
-      const newEvent: Appointment = {
-        id: events.length + 1,
-        title,
-        start: slotInfo.start,
-        end: slotInfo.end,
-      };
-      setEvents([...events, newEvent]);
+    if (editingEvent) {
+      // Editar cita existente
+      setEvents(
+        events.map((event) =>
+          event.id === editingEvent.id
+            ? { ...event, start, end }
+            : event
+        )
+      );
+      setEditingEvent(null);
+    } else {
+      // Crear nueva cita
+      setEvents([
+        ...events,
+        {
+          id: Date.now(),
+          title: "Cita reservada 💈",
+          start,
+          end,
+        },
+      ]);
     }
+
+    setSelectedDate(null);
+    setSelectedHour(10);
   };
 
-  // Editar cita
-  const handleSelectEvent = (event: Appointment) => {
-    const action = confirm(
-      `📌 Cita: ${event.title}\n¿Deseas eliminarla? (Aceptar = eliminar, Cancelar = mantener)`
-    );
-    if (action) {
-      setEvents(events.filter((e) => e.id !== event.id));
+  const handleDeleteAppointment = () => {
+    if (editingEvent) {
+      setEvents(events.filter((event) => event.id !== editingEvent.id));
+      setEditingEvent(null);
+      setSelectedDate(null);
     }
   };
 
   return (
-    <div className="w-full max-w-5xl mx-auto bg-white shadow-lg rounded-xl p-6 mt-10">
-      <h2 className="text-2xl font-bold text-center mb-4 text-gray-800">
+    <div className="w-full max-w-6xl mx-auto p-4">
+      <h2 className="text-3xl font-bold text-center mb-6">
         📅 Agenda tu cita
       </h2>
       <Calendar
@@ -76,13 +113,17 @@ export default function AppointmentCalendar() {
         endAccessor="end"
         selectable
         onSelectSlot={handleSelectSlot}
-        onSelectEvent={handleSelectEvent}
+        onSelectEvent={(event) => {
+          setEditingEvent(event as Event);
+          setSelectedDate(event.start);
+          setSelectedHour(event.start.getHours());
+        }}
         style={{ height: 600 }}
-        step={60} // ⏱️ Duración de cada slot = 1 hora
+        step={60}
         timeslots={1}
-        min={new Date(2023, 0, 1, 10, 0)} // 10:00 AM
-        max={new Date(2023, 0, 1, 22, 0)} // 10:00 PM
-        views={["month", "week", "day"]}
+        min={new Date(2025, 0, 1, 10, 0)}
+        max={new Date(2025, 0, 1, 22, 0)}
+        views={[Views.MONTH, Views.WEEK, Views.DAY]}
         messages={{
           next: "Siguiente",
           previous: "Anterior",
@@ -92,6 +133,71 @@ export default function AppointmentCalendar() {
           day: "Día",
         }}
       />
+
+      {/* Modal para seleccionar hora */}
+      {selectedDate && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg max-w-sm w-full relative">
+            <h3 className="text-xl font-bold mb-4 text-center">
+              {editingEvent ? "Editar cita" : "Nueva cita"}
+            </h3>
+
+            <label className="block mb-2 font-semibold">
+              Selecciona la hora:
+            </label>
+            <select
+              value={selectedHour}
+              onChange={(e) => setSelectedHour(Number(e.target.value))}
+              className="w-full border rounded px-3 py-2 mb-4"
+            >
+              {hours.map((hour) => {
+                const start = new Date(selectedDate);
+                start.setHours(hour, 0, 0);
+                const citasEnHora = events.filter(
+                  (event) => event.start.getTime() === start.getTime()
+                );
+
+                return (
+                  <option
+                    key={hour}
+                    value={hour}
+                    disabled={citasEnHora.length >= 2 && (!editingEvent || editingEvent.start.getHours() !== hour)}
+                  >
+                    {hour}:00 {citasEnHora.length >= 1 ? "(Lleno)" : ""}
+                  </option>
+                );
+              })}
+            </select>
+
+            <div className="flex justify-between mt-6">
+              {editingEvent && (
+                <button
+                  onClick={handleDeleteAppointment}
+                  className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+                >
+                  Eliminar
+                </button>
+              )}
+              <button
+                onClick={() => {
+                  setSelectedDate(null);
+                  setSelectedHour(10);
+                  setEditingEvent(null);
+                }}
+                className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={handleSaveAppointment}
+                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+              >
+                {editingEvent ? "Guardar cambios" : "Confirmar"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

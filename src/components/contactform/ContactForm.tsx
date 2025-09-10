@@ -57,7 +57,7 @@ export default function ContactSection() {
                     type="submit"
                     className="bg-blue-600 hover:bg-opacity-90 px-10 py-3 rounded-md mb-4"
                   >
-                    Send
+                    Enviar
                   </button>
                 </div>
               </form>
