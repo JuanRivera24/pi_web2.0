@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useUser } from "@clerk/nextjs";
 import {
   Calendar,
   dateFnsLocalizer,
@@ -26,13 +27,23 @@ interface Event {
   title: string;
   start: Date;
   end: Date;
+  userId: string; // 🔑 asociamos con el usuario
 }
 
 export default function AppointmentCalendar() {
+  const { user } = useUser();
   const [events, setEvents] = useState<Event[]>([]);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [selectedHour, setSelectedHour] = useState<number>(10);
   const [editingEvent, setEditingEvent] = useState<Event | null>(null);
+
+  if (!user) {
+    return (
+      <p className="text-center py-10 text-lg font-semibold">
+        🔒 Debes iniciar sesión para agendar citas.
+      </p>
+    );
+  }
 
   // Horario permitido (10 AM - 10 PM)
   const hours = Array.from({ length: 13 }, (_, i) => i + 10);
@@ -61,13 +72,18 @@ export default function AppointmentCalendar() {
       (event) => event.start.getTime() === start.getTime()
     );
 
-    if (citasEnHora.length >= 2) {
-      alert("⚠️ Ya hay 2 citas en esta hora. Escoge otra.");
+    if (citasEnHora.length >= 1) {
+      alert("⚠️ Ya hay 1 citas en esta hora. Escoge otra.");
       return;
     }
 
     if (editingEvent) {
-      // Editar cita existente
+      // Solo el dueño puede editar
+      if (editingEvent.userId !== user.id) {
+        alert("❌ Solo puedes modificar tus propias citas");
+        return;
+      }
+
       setEvents(
         events.map((event) =>
           event.id === editingEvent.id
@@ -77,14 +93,15 @@ export default function AppointmentCalendar() {
       );
       setEditingEvent(null);
     } else {
-      // Crear nueva cita
+      // Crear nueva cita para el usuario actual
       setEvents([
         ...events,
         {
           id: Date.now(),
-          title: "Cita reservada 💈",
+          title: `Cita de ${user.firstName || "Usuario"} 💈`,
           start,
           end,
+          userId: user.id,
         },
       ]);
     }
@@ -95,11 +112,18 @@ export default function AppointmentCalendar() {
 
   const handleDeleteAppointment = () => {
     if (editingEvent) {
+      if (editingEvent.userId !== user.id) {
+        alert("❌ Solo puedes eliminar tus propias citas");
+        return;
+      }
       setEvents(events.filter((event) => event.id !== editingEvent.id));
       setEditingEvent(null);
       setSelectedDate(null);
     }
   };
+
+  // Mostrar solo las citas del usuario actual
+  const userEvents = events.filter((event) => event.userId === user.id);
 
   return (
     <div className="w-full max-w-6xl mx-auto p-4">
@@ -108,7 +132,7 @@ export default function AppointmentCalendar() {
       </h2>
       <Calendar
         localizer={localizer}
-        events={events}
+        events={userEvents}
         startAccessor="start"
         endAccessor="end"
         selectable
@@ -161,7 +185,11 @@ export default function AppointmentCalendar() {
                   <option
                     key={hour}
                     value={hour}
-                    disabled={citasEnHora.length >= 2 && (!editingEvent || editingEvent.start.getHours() !== hour)}
+                    disabled={
+                      citasEnHora.length >= 2 &&
+                      (!editingEvent ||
+                        editingEvent.start.getHours() !== hour)
+                    }
                   >
                     {hour}:00 {citasEnHora.length >= 1 ? "(Lleno)" : ""}
                   </option>
