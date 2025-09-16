@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 
+import AppointmentsCalendar from "@/components/appointment/AppointmentCalendar";
+
 const servicios = [
   {
     id: 1,
@@ -102,6 +104,11 @@ export default function ServiciosPage() {
           </div>
         ))}
       </div>
+
+      <section className="w-full py-12 bg-gray-100">
+              <AppointmentsCalendar />
+            </section>
+
     </main>
   );
 }

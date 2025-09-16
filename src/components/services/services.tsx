@@ -74,9 +74,9 @@ export default function ServicesAccordion() {
             {/* Overlay con descripción */}
             {active === index && (
               <motion.div
-                className="absolute inset-0 bg-black bg-opacity-60 flex flex-col items-center justify-center text-center text-white p-4"
+                className="absolute inset-0 bg-black bg-opacity-60 backdrop-blur-md flex flex-col items-center justify-center text-center text-white p-4"
                 initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
+                animate={{ opacity: .5 }}
                 transition={{ duration: 0.3 }}
               >
                 <h3 className="text-2xl font-bold mb-2">{service.title}</h3>
@@ -89,7 +89,7 @@ export default function ServicesAccordion() {
 
       {/* Botón de todos los servicios */}
       <div className="flex justify-center mt-10">
-        <Link href="/servicios">
+        <Link href="\services">
           <button className="bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition">
             Todos los servicios
           </button>
