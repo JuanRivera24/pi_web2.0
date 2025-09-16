@@ -5,6 +5,7 @@ import { FC, useState } from "react";
 import { SignedIn, UserButton } from "@clerk/nextjs";
 import LoginForm from "@/components/auth/LoginForm";
 import RegisterForm from "@/components/auth/RegisterForm";
+import { Link as ScrollLink } from "react-scroll";
 
 const Navbar: FC = () => {
   const [showLogin, setShowLogin] = useState(false);
@@ -34,9 +35,15 @@ const Navbar: FC = () => {
           </Link>
         </li>
         <li>
-          <Link href="/citas" className="hover:text-blue-600 transition">
+          <ScrollLink
+            to="citas"
+            smooth={true}
+            duration={600}
+            offset={-50}
+            className="hover:text-blue-600 transition cursor-pointer"
+          >
             Citas
-          </Link>
+          </ScrollLink>
         </li>
         <li>
           <Link href="/sedes" className="hover:text-blue-600 transition">
@@ -44,9 +51,16 @@ const Navbar: FC = () => {
           </Link>
         </li>
         <li>
-          <Link href="/contacto" className="hover:text-blue-600 transition">
+          <ScrollLink
+            to="contacto"
+            smooth={true}
+            duration={600}
+            offset={-50}
+            className="hover:text-blue-600 transition cursor-pointer"
+          >
             Contacto
-          </Link>
+          </ScrollLink>
+
         </li>
 
         {/* 🔐 Autenticación SIEMPRE visible */}

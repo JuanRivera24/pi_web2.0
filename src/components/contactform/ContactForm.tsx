@@ -2,7 +2,7 @@
 
 export default function ContactSection() {
   return (
-    <section className="ezy__contact1 light py-10 md:py-14 bg-white dark:bg-[#0b1727] text-white overflow-hidden">
+    <section id="contacto" className="ezy__contact1 light py-10 md:py-14 bg-white dark:bg-[#0b1727] text-white overflow-hidden">
       <div className="container px-4 relative">
         <div className="grid grid-cols-12 py-12">
           {/* Imagen */}

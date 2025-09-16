@@ -27,7 +27,7 @@ interface Event {
   title: string;
   start: Date;
   end: Date;
-  userId: string; // 🔑 asociamos con el usuario
+  userId: string; 
 }
 
 export default function AppointmentCalendar() {
@@ -39,7 +39,7 @@ export default function AppointmentCalendar() {
 
   if (!user) {
     return (
-      <p className="text-center py-10 text-lg font-semibold">
+      <p id="citas" className="text-center py-10 text-lg font-semibold">
         🔒 Debes iniciar sesión para agendar citas.
       </p>
     );
@@ -126,7 +126,7 @@ export default function AppointmentCalendar() {
   const userEvents = events.filter((event) => event.userId === user.id);
 
   return (
-    <div className="w-full max-w-6xl mx-auto p-4">
+    <div id="citas" className="w-full max-w-6xl mx-auto p-4">
       <h2 className="text-3xl font-bold text-center mb-6">
         📅 Agenda tu cita
       </h2>
