@@ -4,8 +4,8 @@ import { ClerkProvider } from "@clerk/nextjs";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
-import Navbar from "@/components/layout/Navbar"; // 👈 importa tu navbar
-import Footer from "@/components/layout/Footer"; // 👈 asumiendo que ya tienes un footer
+import Navbar from "@/components/layout/Navbar"; 
+import Footer from "@/components/layout/Footer"; 
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -37,7 +37,7 @@ export default function RootLayout({
           <Navbar />
 
           {/* Contenido principal */}
-          <main className="flex-1 pt-20">{/* pt-20 para que no tape el navbar fijo */}
+          <main className="flex-1 pt-20">
             {children}
           </main>
 

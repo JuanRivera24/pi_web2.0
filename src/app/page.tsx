@@ -2,6 +2,7 @@
 
 import ContactSection from "@/components/contactform/ContactForm";
 import AppointmentsCalendar from "@/components/appointment/AppointmentCalendar";
+import ServicesAccordion from "@/components/services/services";
 
 export default function HomePage() {
   return (
@@ -22,6 +23,8 @@ export default function HomePage() {
           el cuidado personal es parte de su reino. 💈👑
         </p>
       </section>
+
+      <ServicesAccordion />
 
       <section className="w-full py-12 bg-gray-100">
         <AppointmentsCalendar />
