@@ -30,9 +30,15 @@ const Navbar: FC = () => {
           </Link>
         </li>
         <li>
-          <Link href="/servicios" className="hover:text-blue-600 transition">
+          <ScrollLink
+            to="servicios"
+            smooth={true}
+            duration={600}
+            offset={-50}
+            className="hover:text-blue-600 transition cursor-pointer"
+          >
             Servicios
-          </Link>
+          </ScrollLink>
         </li>
         <li>
           <ScrollLink

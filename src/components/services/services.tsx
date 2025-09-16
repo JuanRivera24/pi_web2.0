@@ -41,7 +41,7 @@ export default function ServicesAccordion() {
   const [active, setActive] = useState<number | null>(null);
 
   return (
-    <section className="w-full py-12 bg-gray-100">
+    <section id="servicios" className="w-full py-12 bg-gray-100">
       <h2 className="text-3xl font-bold text-center mb-8 text-gray-800">
         Nuestros Servicios
       </h2>
