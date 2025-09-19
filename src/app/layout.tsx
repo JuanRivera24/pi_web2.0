@@ -31,7 +31,7 @@ export default function RootLayout({
     <ClerkProvider>
       <html lang="es">
         <body
-          className={`${geistSans.variable} ${geistMono.variable} antialiased flex flex-col min-h-screen bg-gray-100`}
+          className={`${geistSans.variable} ${geistMono.variable} antialiased flex flex-col min-h-screen bg-gray-290`}
         >
           {/* Navbar con Clerk */}
           <Navbar />
