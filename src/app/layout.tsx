@@ -6,6 +6,7 @@ import "./globals.css";
 
 import Navbar from "@/components/layout/Navbar"; 
 import Footer from "@/components/layout/Footer"; 
+import "react-big-calendar/lib/css/react-big-calendar.css";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
