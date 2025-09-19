@@ -1,52 +1,73 @@
 "use client";
+import Image from "next/image";
 import ContactSection from "@/components/contactform/ContactForm";
 import AppointmentsCalendar from "@/components/appointment/AppointmentCalendar";
 import ServicesAccordion from "@/components/services/services";
 export default function HomePage() {
 return (
-<main className="bg-blue-200">
-{/* Hero: ocupa el alto de la pantalla */}
-<section
-id="hero"
-className="relative w-full min-h-screen bg-gradient-to-b from-black via-gray-900 to-gray-800 text-white flex flex-col items-center justify-center px-6 pt-24"
->
-<div className="max-w-3xl text-center">
-<h1 className="text-4xl sm:text-5xl font-extrabold mb-6 tracking-wide">
-Kingdom Barber ✂️💈
-</h1>
-<p className="text-base sm:text-lg leading-relaxed">
-En <span className="font-semibold">Kingdom Barber</span> creemos que un buen corte no solo transforma tu estilo, también eleva tu confianza. Somos más que una barbería: un espacio donde tradición, excelencia y modernidad se unen para que vivas una experiencia única.
-</p>
-<p className="mt-4 text-base sm:text-lg leading-relaxed text-gray-300">
-Ven a disfrutar de un servicio premium, pensado para quienes saben que el cuidado personal es parte de su reino. 💈👑
-</p>
-      {/* Call to actions */}
-      <div className="mt-8 flex gap-4 justify-center">
-        <a href="#citas" className="px-5 py-3 rounded-lg bg-gray-200 text-gray-900 hover:bg-gray-300 transition">
+<main className="bg-neutral-50">
+{/* HERO full-screen con imagen */}
+<section id="hero" className="relative isolate w-full min-h-screen flex items-center pt-24">
+<Image
+src="/Images/fondo-barberia.jpg"
+alt="Barbería"
+fill
+priority
+sizes="100vw"
+className="object-cover object-center"
+/>
+<div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-black/60" />
+    <div className="relative z-10 mx-auto max-w-screen-xl px-6 text-center text-white">
+      <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-sm backdrop-blur ring-1 ring-white/20">
+        💈 Kingdom Barber
+      </span>
+      <h1 className="mt-6 text-4xl sm:text-6xl font-extrabold leading-tight tracking-tight drop-shadow">
+        Eleva tu estilo, gobierna tu imagen
+      </h1>
+      <p className="mt-4 text-base sm:text-lg text-white/85">
+        Un espacio donde tradición, excelencia y modernidad se unen para que vivas una experiencia única.
+      </p>
+      <div className="mt-8 flex flex-wrap justify-center gap-4">
+        <a href="#citas" className="px-6 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-600/30">
           Agendar cita
         </a>
+        <a href="#servicios" className="px-6 py-3 rounded-xl bg-white/10 hover:bg-white/20 text-white ring-1 ring-white/30 backdrop-blur">
+          Ver servicios
+        </a>
+      </div>
+    </div>
+
+    <div className="absolute bottom-6 left-1/2 -translate-x-1/2 text-white/70 text-sm animate-bounce">
+      Desliza para ver más
+    </div>
+  </section>
+
+  {/* Servicios: ancho amplio y sin encoger el acordeón */}
+  <section id="servicios" className="scroll-mt-24 py-16">
+    <div className="mx-auto w-full max-w-screen-2xl px-4 sm:px-6 lg:px-8">
+      <div className="w-full rounded-2xl bg-white shadow-sm ring-1 ring-gray-200 p-4 sm:p-6">
+        <ServicesAccordion />
       </div>
     </div>
   </section>
 
-  {/* Servicios */}
-  <section id="servicios" className="w-full scroll-mt-24 py-12 bg-white">
-    <div className="container mx-auto px-6">
-      <ServicesAccordion />
-    </div>
-  </section>
-
   {/* Citas */}
-  <section id="citas" className="w-full scroll-mt-24 py-12 bg-gray-100">
-    <div className="container mx-auto px-6">
-      <AppointmentsCalendar />
+  <section id="citas" className="scroll-mt-24 py-16 bg-gray-50">
+    <div className="mx-auto w-full max-w-screen-2xl px-4 sm:px-6 lg:px-8">
+      <h2 className="text-3xl font-bold tracking-tight text-gray-900 mb-8">Reserva tu cita</h2>
+      <div className="w-full rounded-2xl bg-white shadow-sm ring-1 ring-gray-200 p-4 sm:p-6">
+        <AppointmentsCalendar />
+      </div>
     </div>
   </section>
 
   {/* Contacto */}
-  <section id="contacto" className="w-full scroll-mt-24 py-12 bg-white">
-    <div className="container mx-auto px-6">
-      <ContactSection />
+  <section id="contacto" className="scroll-mt-24 py-16">
+    <div className="mx-auto w-full max-w-screen-2xl px-4 sm:px-6 lg:px-8">
+      <h2 className="text-3xl font-bold tracking-tight text-gray-900 mb-8">Contáctanos</h2>
+      <div className="w-full rounded-2xl bg-white shadow-sm ring-1 ring-gray-200 p-4 sm:p-6">
+        <ContactSection />
+      </div>
     </div>
   </section>
 </main>
