@@ -46,7 +46,7 @@ return (
       </ScrollLink>
     </li>
     <li>
-      <Link href="/sedes" className="hover:text-white transition-colors">
+      <Link href="#mapa" className="hover:text-white transition-colors">
         Sedes
       </Link>
     </li>
