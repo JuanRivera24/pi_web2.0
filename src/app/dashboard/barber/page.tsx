@@ -1,7 +1,8 @@
-// src/app/dashboard/barber/page.tsx
+// src/app/dashboard/barber/page.tsx (Completo y Actualizado)
 
 import Image from "next/image";
 import ContactSection from "@/components/contactform/ContactForm";
+import BarberAgenda from "@/components/dashboard/BarberAgenda"; // 1. Importamos el componente de la agenda
 
 export default function BarberHomePage() {
   return (
@@ -32,14 +33,13 @@ export default function BarberHomePage() {
         </div>
       </section>
 
-      {/* Sección de "Tu Agenda" (marcador para el futuro) */}
+      {/* Sección de "Tu Agenda" con el componente funcional */}
       <section id="agenda" className="scroll-mt-24 py-16">
         <div className="mx-auto w-full max-w-screen-2xl px-4 sm:px-6 lg:px-8">
           <h2 className="text-3xl font-bold tracking-tight text-gray-900 mb-8">Tu Agenda</h2>
-          <div className="w-full rounded-2xl bg-white shadow-sm ring-1 ring-gray-200 p-6 min-h-[300px] flex items-center justify-center">
-            <p className="text-gray-500 text-lg">
-              Próximamente: Aquí podrás visualizar y gestionar tus citas.
-            </p>
+          <div className="w-full rounded-2xl bg-white shadow-sm ring-1 ring-gray-200 p-6 min-h-[300px]">
+            {/* 2. Aquí usamos el componente BarberAgenda en lugar del texto de marcador */}
+            <BarberAgenda />
           </div>
         </div>
       </section>

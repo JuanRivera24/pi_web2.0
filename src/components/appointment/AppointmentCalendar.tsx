@@ -74,6 +74,20 @@ const Toolbar = ({ label, onNavigate, onView, view }: ToolbarProps) => {
   );
 };
 
+const generateEventTitle = (cita: any, barberos: Barbero[], userId: string | undefined): string => {
+  // Adaptado para funcionar con ambos formatos de datos (del frontend y del backend)
+  const barberoId = cita.ID_Barbero || cita.barberoId || cita.barberId;
+  const clienteId = cita.ID_Cliente || cita.userId || cita.clienteId;
+  
+  const barbero = barberos.find(b => b.ID_Barbero === barberoId);
+  const nombreBarbero = barbero ? `${barbero.Nombre_Barbero}` : "Barbero desconocido";
+
+  if (userId === clienteId) {
+    return `Tu cita con ${nombreBarbero} 💈`;
+  }
+  return `Reservado con ${nombreBarbero}`;
+};
+
 
 export default function AppointmentCalendar() {
   const { user } = useUser();
@@ -97,18 +111,35 @@ export default function AppointmentCalendar() {
   useEffect(() => {
     async function fetchData() {
       try {
-        const [sedesRes, barberosRes, serviciosRes] = await Promise.all([
+        const [sedesRes, barberosRes, serviciosRes, citasRes] = await Promise.all([
           fetch('/api/sedes'),
           fetch('/api/barberos'),
-          fetch('/api/servicios')
+          fetch('/api/servicios'),
+          fetch('/api/citas')
         ]);
         const sedesData = await sedesRes.json();
         const barberosData = await barberosRes.json();
         const serviciosData = await serviciosRes.json();
+        const citasData = await citasRes.json();
 
         setSedes(sedesData);
         setBarberos(barberosData);
         setServicios(serviciosData);
+
+        // El mapeo inicial debe ser compatible con la estructura que devuelve tu API al cargar todas las citas
+        const citasFormateadas = citasData.map((cita: any) => ({
+          ...cita,
+          id: cita.id || cita.ID_Cita,
+          start: new Date(cita.start || cita.Fecha_Hora_Inicio),
+          end: new Date(cita.end || cita.Fecha_Hora_Fin),
+          userId: cita.clienteId || cita.ID_Cliente,
+          sedeId: cita.sedeId || cita.ID_Sede,
+          barberoId: cita.barberId || cita.ID_Barbero,
+          servicioIds: Array.isArray(cita.services) ? cita.services : (typeof cita.services === 'string' && cita.services.startsWith('[')) ? JSON.parse(cita.services) : (cita.Servicios ? cita.Servicios.split(',') : []),
+          title: generateEventTitle(cita, barberosData, user?.id)
+        }));
+        setEvents(citasFormateadas);
+
       } catch (error) {
         console.error("Error cargando datos:", error);
         showToast("Error al cargar datos del sistema", "error");
@@ -116,8 +147,10 @@ export default function AppointmentCalendar() {
         setIsLoading(false);
       }
     }
-    fetchData();
-  }, []);
+    if (user) {
+        fetchData();
+    }
+  }, [user]);
 
   const filteredBarberos = useMemo(() => {
     if (!selectedSede) return [];
@@ -182,71 +215,147 @@ export default function AppointmentCalendar() {
         : [...prev, servicioId]
     );
   };
-
-  const handleSaveAppointment = () => {
+  
+  // --- INICIO DEL CÓDIGO CORREGIDO ---
+  const handleSaveAppointment = async () => {
+    // 1. Validaciones iniciales
+    if (!user) {
+        showToast("Error de autenticación.", "error");
+        return;
+    }
     if (!selectedDate || !selectedSede || !selectedBarbero || selectedServicios.length === 0) {
       showToast("Por favor, completa todos los campos.", "error");
       return;
     }
-
+  
+    // 2. Cálculo de las fechas de inicio y fin
     const start = new Date(selectedDate);
     start.setHours(selectedHour, 0, 0, 0);
-
+  
     const end = new Date(start);
     end.setMinutes(start.getMinutes() + totalDuration);
-
+  
+    // 3. Verificación de citas existentes
     const clash = events.some(
       (e) => e.start < end && e.end > start && e.barberoId === selectedBarbero && (!editingEvent || e.id !== editingEvent.id)
     );
-
+  
     if (clash) {
       showToast("Ese barbero ya tiene una cita en ese horario. Elige otra hora o barbero.", "error");
       return;
     }
-
-    const barbero = barberos.find(b => b.ID_Barbero === selectedBarbero);
-    const title = `${selectedServicios.length} servicio(s) con ${barbero?.Nombre_Barbero} 💈`;
-
-    if (editingEvent) {
-      if (editingEvent.userId !== user.id) {
-        showToast("Solo puedes modificar tus propias citas", "error");
-        return;
-      }
-      setEvents((p) => p.map((e) => (e.id === editingEvent.id ? { ...e, title, start, end, sedeId: selectedSede, barberoId: selectedBarbero, servicioIds: selectedServicios } : e)));
-      showToast("Cita actualizada", "success");
-      setEditingEvent(null);
-    } else {
-      setEvents((p) => [
-        ...p,
-        {
-          id: globalThis.crypto?.randomUUID ? globalThis.crypto.randomUUID() : String(Date.now()),
-          title,
-          start,
-          end,
-          userId: user.id,
-          sedeId: selectedSede,
-          barberoId: selectedBarbero,
-          servicioIds: selectedServicios,
+    
+    // 4. Creación del objeto de datos para la API (AQUÍ ESTÁ LA CORRECCIÓN)
+    // Nos aseguramos de que los nombres de las claves coincidan con lo que el backend espera.
+    const appointmentData = {
+      // Para la edición, nos aseguramos de enviar el ID de la cita
+      id: editingEvent ? editingEvent.id : undefined, 
+      
+      // Datos del formulario con los nombres CORRECTOS
+      sedeId: selectedSede,
+      barberId: selectedBarbero, // ¡Corregido! 
+      clienteId: user.id,       // ¡Corregido! 
+      services: JSON.stringify(selectedServicios), // ¡Corregido! El backend espera un string JSON de los IDs.
+      totalCost: subtotal.toString(), // ¡Corregido! Enviamos el subtotal calculado.
+      
+      // Las fechas en formato estándar ISO
+      start: start.toISOString(),
+      end: end.toISOString(),
+      
+      // El título se genera y se envía
+      title: generateEventTitle({ ID_Barbero: selectedBarbero, ID_Cliente: user.id }, barberos, user.id),
+    };
+  
+    try {
+      // 5. Petición a la API (POST para crear, PUT para editar)
+      const response = await fetch('/api/citas', {
+        method: editingEvent ? 'PUT' : 'POST', 
+        headers: {
+          'Content-Type': 'application/json',
         },
-      ]);
-      showToast("Cita creada", "success");
+        body: JSON.stringify(appointmentData),
+      });
+  
+      if (!response.ok) {
+        const errorData = await response.json();
+        // Mostramos el mensaje de error específico que envía el backend
+        throw new Error(errorData.message || 'Error al guardar la cita.');
+      }
+  
+      const savedAppointment = await response.json();
+      const citaGuardada = savedAppointment.data; // La cita está dentro de la propiedad 'data'
+  
+      // 6. Creación del nuevo evento para actualizar el calendario visualmente
+      const newEvent: AppointmentEvent = {
+        id: citaGuardada.id,
+        title: generateEventTitle({ barberId: citaGuardada.barberId, clienteId: citaGuardada.clienteId }, barberos, user.id),
+        start: new Date(citaGuardada.start),
+        end: new Date(citaGuardada.end),
+        userId: citaGuardada.clienteId,
+        sedeId: citaGuardada.sedeId,
+        barberoId: citaGuardada.barberId,
+        servicioIds: JSON.parse(citaGuardada.services),
+      };
+      
+      // 7. Actualización del estado local y feedback al usuario
+      if (editingEvent) {
+        setEvents(prev => prev.map(ev => ev.id === newEvent.id ? newEvent : ev));
+        showToast("Cita actualizada exitosamente", "success");
+      } else {
+        setEvents(prev => [...prev, newEvent]);
+        showToast("Cita creada exitosamente", "success");
+      }
+  
+      // Limpiamos el formulario
+      setSelectedDate(null);
+      setEditingEvent(null);
+  
+    } catch (error: any) {
+      console.error("Error en handleSaveAppointment:", error);
+      showToast(error.message || "No se pudo guardar la cita.", "error");
     }
-    setSelectedDate(null);
   };
+  // --- FIN DEL CÓDIGO CORREGIDO ---
 
-  const handleDeleteAppointment = () => {
-    if (!editingEvent) return;
+
+  const handleDeleteAppointment = async () => {
+    if (!editingEvent || !user) return;
+
     if (editingEvent.userId !== user.id) {
       showToast("Solo puedes eliminar tus propias citas", "error");
       return;
     }
-    setEvents((p) => p.filter((e) => e.id !== editingEvent.id));
-    setEditingEvent(null);
-    setSelectedDate(null);
-    showToast("Cita eliminada", "info");
-  };
 
-  const userEvents = events.filter((e) => e.userId === user.id);
+    if (!window.confirm("¿Estás seguro de que quieres eliminar esta cita?")) {
+        return;
+    }
+
+    try {
+        const response = await fetch('/api/citas', {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            // Asegúrate que tu API de DELETE espera `id` o `ID_Cita`
+            body: JSON.stringify({ id: editingEvent.id }),
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.message || 'Error al eliminar la cita.');
+        }
+
+        setEvents(prev => prev.filter(e => e.id !== editingEvent.id));
+        showToast("Cita eliminada correctamente", "success");
+
+        setEditingEvent(null);
+        setSelectedDate(null);
+
+    } catch (error: any) {
+        console.error("Error en handleDeleteAppointment:", error);
+        showToast(error.message || "No se pudo eliminar la cita.", "error");
+    }
+  };
 
   return (
     <div id="citas" className="w-full max-w-6xl mx-auto p-6 scroll-mt-24">
@@ -259,19 +368,23 @@ export default function AppointmentCalendar() {
         <Calendar
           culture="es"
           localizer={localizer}
-          events={userEvents}
+          events={events}
           startAccessor="start"
           endAccessor="end"
           selectable
           onSelectSlot={handleSelectSlot}
           onSelectEvent={(ev) => {
             const e = ev as AppointmentEvent;
-            setEditingEvent(e);
-            setSelectedDate(e.start);
-            setSelectedSede(e.sedeId);
-            setSelectedBarbero(e.barberoId);
-            setSelectedServicios(e.servicioIds);
-            setSelectedHour(e.start.getHours());
+            if (e.userId === user.id) {
+              setEditingEvent(e);
+              setSelectedDate(e.start);
+              setSelectedSede(e.sedeId);
+              setSelectedBarbero(e.barberoId);
+              setSelectedServicios(e.servicioIds);
+              setSelectedHour(e.start.getHours());
+            } else {
+              showToast("Este horario ya está ocupado.", "info");
+            }
           }}
           style={{ height: 600 }}
           step={60}
@@ -290,9 +403,14 @@ export default function AppointmentCalendar() {
             time: "Hora", event: "Evento", noEventsInRange: "No hay eventos en este rango",
             showMore: (c: number) => `+ Ver ${c} más`,
           }}
-          eventPropGetter={() => ({
-            style: { backgroundColor: "#2563eb", borderRadius: "8px", color: "white", padding: "4px 6px", border: "1px solid #1d4ed8" },
-          })}
+          eventPropGetter={(event) => {
+            const isUserEvent = event.userId === user.id;
+            const backgroundColor = isUserEvent ? '#2563eb' : '#6b7280';
+            const borderColor = isUserEvent ? '#1d4ed8' : '#4b5563';
+            return {
+              style: { backgroundColor, borderRadius: "8px", color: "white", padding: "4px 6px", border: `1px solid ${borderColor}` },
+            }
+          }}
         />
       </div>
 
@@ -300,7 +418,7 @@ export default function AppointmentCalendar() {
         <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 overflow-y-auto p-4">
           <div className="bg-white w-full max-w-md rounded-2xl shadow-2xl p-6 relative my-8">
             <button
-              onClick={() => setSelectedDate(null)}
+              onClick={() => {setSelectedDate(null); setEditingEvent(null);}}
               className="absolute top-3 right-3 text-gray-400 hover:text-gray-600"
               aria-label="Cerrar modal"
             >
@@ -427,8 +545,7 @@ export default function AppointmentCalendar() {
                   </div>
                 )}
               </div>
-              
-              {/* ========= INICIO DE LA MODIFICACIÓN ========= */}
+
               <div>
                 <label htmlFor="hora" className="block mb-2 font-medium text-gray-700">4. Selecciona la Hora</label>
                 <select
@@ -441,11 +558,10 @@ export default function AppointmentCalendar() {
                   {hours.map((hour) => {
                     const now = new Date();
                     const isToday = selectedDate.toDateString() === now.toDateString();
-                    
-                    // MODIFICADO: Añadimos la condición de que la hora debe ser posterior a la actual si es hoy.
+
                     const isPastHour = isToday && hour < now.getHours();
                     if (isPastHour) {
-                      return null; // No renderizar la opción si es una hora pasada del día de hoy
+                      return null;
                     }
 
                     const start = new Date(selectedDate);
@@ -465,7 +581,6 @@ export default function AppointmentCalendar() {
                   })}
                 </select>
               </div>
-               {/* ========= FIN DE LA MODIFICACIÓN ========= */}
 
             </div>
 
@@ -476,13 +591,13 @@ export default function AppointmentCalendar() {
                 </button>
               )}
               <button
-                onClick={() => setSelectedDate(null)}
+                onClick={() => {setSelectedDate(null); setEditingEvent(null);}}
                 className="flex-1 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
               >
                 Cancelar
               </button>
               <button onClick={handleSaveAppointment} className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
-                {editingEvent ? "Guardar" : "Confirmar"}
+                {editingEvent ? "Guardar Cambios" : "Confirmar Cita"}
               </button>
             </div>
           </div>
