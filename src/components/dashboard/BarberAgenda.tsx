@@ -2,15 +2,13 @@
 
 import { useEffect, useState } from "react";
 
-// Actualizamos la interfaz para que TypeScript sepa de los nuevos datos que llegan
+// Interfaz que espera los datos enriquecidos desde la API
 interface CitaEnriquecida {
   id: string;
   clienteId: string;
-  barberId: string; // Aún lo tenemos por si lo necesitamos
   start: string;
   title: string;
   totalCost: string;
-  // Nuevos objetos con información detallada
   barberoInfo: {
     id: string;
     nombre: string;
@@ -65,13 +63,12 @@ export default function AllAppointmentsAgenda() {
       {citas.map((cita) => {
         const fechaCita = new Date(cita.start);
         
-        // --- AQUÍ LA CORRECCIÓN FINAL ---
-        // Comprobamos si el array tiene elementos antes de mapearlo.
+        // Comprobación segura para mostrar los servicios
         const serviciosTexto = cita.serviciosInfo && cita.serviciosInfo.length > 0
           ? cita.serviciosInfo
               .map(servicio => `${servicio.nombre} (ID: ${servicio.id})`)
               .join(', ')
-          : 'No especificado'; // Si está vacío, mostramos este texto.
+          : 'No especificado';
 
         return (
           <div key={cita.id} className="bg-white p-4 rounded-lg border border-gray-200 shadow-sm transition hover:shadow-md">
@@ -85,7 +82,6 @@ export default function AllAppointmentsAgenda() {
               <p><strong className="font-semibold">Fecha:</strong> {fechaCita.toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
               <p><strong className="font-semibold">Hora:</strong> {fechaCita.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}</p>
               
-              {/* Mostramos los nuevos datos */}
               <p><strong className="font-semibold">Barbero:</strong> {`${cita.barberoInfo.nombre} (ID: ${cita.barberoInfo.id})`}</p>
               <p><strong className="font-semibold">Cliente ID:</strong> {cita.clienteId}</p>
               <p><strong className="font-semibold">Servicios:</strong> {serviciosTexto}</p>

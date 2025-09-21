@@ -29,8 +29,6 @@ interface ServicioFromCSV {
   Nombre_Servicio: string;
 }
 
-// Ya no necesitamos leer clientes.csv para esta lógica, así que podemos quitar su interfaz.
-
 // --- Función para leer cualquier archivo CSV ---
 const readCsvFile = async (fileName: string): Promise<any[]> => {
   try {
@@ -64,41 +62,53 @@ const writeCsvFile = async (fileName: string, data: Cita[]) => {
 // --- FUNCIÓN GET COMPLETA Y CORREGIDA ---
 export async function GET() {
   try {
-    // 1. Volvemos a leer solo los 3 archivos necesarios
     const [citas, barberosData, serviciosData] = await Promise.all([
       readCsvFile('nuevas_citas.csv') as Promise<Cita[]>,
       readCsvFile('barberos.csv') as Promise<BarberoFromCSV[]>,
       readCsvFile('servicios.csv') as Promise<ServicioFromCSV[]>,
     ]);
 
-    // 2. Creamos los mapas para barberos y servicios
     const barberosMap = new Map(barberosData.map(b => [b.ID_Barbero.toString(), `${b.Nombre_Barbero} ${b.Apellido_Barbero}`.trim()]));
     const serviciosMap = new Map(serviciosData.map(s => [s.ID_Servicio.toString(), s.Nombre_Servicio]));
 
-    // 3. Transformamos cada cita
     const citasEnriquecidas = citas.map(cita => {
       const nombreBarbero = barberosMap.get(cita.barberId.toString()) || `Barbero Desconocido`;
       
       let serviciosInfo: { id: string; nombre: string }[] = [];
+      
       if (cita.services && cita.services.trim() !== '') {
-        const serviciosIds = cita.services.toString().split(',').map(id => id.trim());
+        // --- Lógica robusta para limpiar los IDs de servicio ---
+        let serviciosIds: string[] = [];
+        const servicesString = cita.services.toString();
+
+        try {
+          // Intenta interpretar el string como JSON (ej: ["201"])
+          const parsed = JSON.parse(servicesString);
+          if (Array.isArray(parsed)) {
+            serviciosIds = parsed.map(String);
+          } else {
+            serviciosIds = [String(parsed)];
+          }
+        } catch (e) {
+          // Si no es JSON (ej: "201,202"), lo separa por comas
+          serviciosIds = servicesString.split(',').map(id => id.trim());
+        }
+
+        // Busca cada ID limpio en el mapa de servicios
         serviciosInfo = serviciosIds.map(id => ({
           id: id,
-          nombre: serviciosMap.get(id) || `Servicio Desconocido`
+          nombre: serviciosMap.get(id) || `Servicio (ID: ${id}) No Encontrado`
         }));
       }
 
-      // 4. Construimos el objeto final que se enviará al frontend
       return {
         ...cita,
-        // --- AQUÍ LA CORRECCIÓN ---
-        // El título ahora es directamente el ID del cliente que viene en la cita.
-        title: `Cliente ID: ${cita.clienteId}`, 
+        title: `Cliente ID: ${cita.clienteId}`,
         barberoInfo: {
           id: cita.barberId,
           nombre: nombreBarbero
         },
-        serviciosInfo: serviciosInfo
+        serviciosInfo: serviciosInfo // Garantiza que siempre sea un array
       };
     });
     
