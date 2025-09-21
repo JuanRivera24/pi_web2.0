@@ -1,3 +1,5 @@
+// En: /app/dashboard/barber/gallery/page.tsx
+
 "use client";
 
 import { useState, useEffect, FormEvent } from 'react';
@@ -11,17 +13,23 @@ interface GalleryImage {
   category: string;
 }
 
+// --- FUNCIÓN AUXILIAR MEJORADA ---
+// Esta función toma el nombre del archivo y construye la URL web de forma segura.
+const buildImageUrl = (fileName: any): string => {
+  if (typeof fileName !== 'string' || !fileName.trim()) {
+    return ''; // Devuelve una cadena vacía si el nombre del archivo no es válido
+  }
+  // Construye la ruta web correcta que Next.js puede entender.
+  return `/gallery/${fileName}`;
+}
+
 export default function GalleryPage() {
   const [images, setImages] = useState<GalleryImage[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
-
-  // --- NUEVO ESTADO PARA EL LIGHTBOX ---
   const [selectedImage, setSelectedImage] = useState<GalleryImage | null>(null);
-
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editText, setEditText] = useState({ description: '', category: '' });
-
   const [description, setDescription] = useState('');
   const [category, setCategory] = useState('');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -140,14 +148,14 @@ export default function GalleryPage() {
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         {images.map((image) => (
           <div key={image.id} className="group rounded-lg shadow-lg bg-gray-800 flex flex-col overflow-hidden">
-            {/* --- MODIFICACIÓN: Envolvemos la imagen en un div para el clic --- */}
             <div onClick={() => setSelectedImage(image)} className="cursor-pointer overflow-hidden">
               <Image
-                src={`/gallery/${image.fileName}`}
+                // --- CORRECCIÓN APLICADA AQUÍ ---
+                // Usamos la función auxiliar para construir la ruta de forma segura
+                src={buildImageUrl(image.fileName)}
                 alt={image.description}
                 width={400}
                 height={400}
-                // --- CAMBIO DE ALTURA ---
                 className="object-cover w-full h-64 transition-transform duration-300 group-hover:scale-110"
                 unoptimized
               />
@@ -181,9 +189,8 @@ export default function GalleryPage() {
         <div className="text-center py-20"><p className="text-gray-400">Tu galería está vacía.</p></div>
       )}
 
-      {/* --- CÓDIGO DEL MODAL PARA SUBIR (sin cambios) --- */}
+      {/* El resto del código para el modal y el lightbox no necesita cambios */}
       {isModalOpen && (
-        // ... (el código del modal de subida sigue igual que antes)
          <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
           <div className="bg-gray-800 p-8 rounded-lg shadow-2xl w-full max-w-md relative">
             <button onClick={closeModal} className="absolute top-4 right-4 text-gray-400 hover:text-white"><X size={24} /></button>
@@ -215,12 +222,10 @@ export default function GalleryPage() {
           </div>
         </div>
       )}
-
-      {/* --- NUEVO CÓDIGO PARA EL LIGHTBOX --- */}
       {selectedImage && (
         <div 
           className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50"
-          onClick={() => setSelectedImage(null)} // Cierra el modal al hacer clic en el fondo
+          onClick={() => setSelectedImage(null)}
         >
           <div className="relative max-w-4xl max-h-[90vh] p-4">
             <button 
@@ -230,10 +235,11 @@ export default function GalleryPage() {
               <X size={24} />
             </button>
             <Image
-              src={`/gallery/${selectedImage.fileName}`}
+              // --- CORRECCIÓN APLICADA TAMBIÉN EN EL LIGHTBOX ---
+              src={buildImageUrl(selectedImage.fileName)}
               alt={selectedImage.description}
-              width={1200} // Ancho máximo
-              height={1200} // Alto máximo
+              width={1200}
+              height={1200}
               className="object-contain w-auto h-auto max-h-[85vh] rounded-lg"
               unoptimized
             />

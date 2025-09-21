@@ -1,11 +1,10 @@
-
 // En: /app/api/gallery/[id]/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import path from 'path';
 import { promises as fs } from 'fs';
 import Papa from 'papaparse';
 
-// --- RUTA CORREGIDA ---
+// Asegúrate de que esta ruta sea correcta para tu proyecto
 const csvFilePath = path.join(process.cwd(), 'src', 'data', 'gallery.csv');
 
 interface CsvRow {
@@ -15,6 +14,7 @@ interface CsvRow {
   category: string;
 }
 
+// La función PUT estaba correcta, no necesita cambios.
 export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
   try {
     const idToUpdate = parseInt(params.id);
@@ -48,6 +48,8 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
   }
 }
 
+
+// --- FUNCIÓN DELETE CORREGIDA ---
 export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
   try {
     const idToDelete = parseInt(params.id);
@@ -55,12 +57,16 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
     const fileContent = await fs.readFile(csvFilePath, 'utf8');
     const parsed = Papa.parse<CsvRow>(fileContent, { header: true, skipEmptyLines: true });
 
+    // Guardamos los nombres de las cabeceras originales
+    const headers = parsed.meta.fields;
+
     const imageToDelete = parsed.data.find((row) => parseInt(row.id) === idToDelete);
 
     if (!imageToDelete) {
       return NextResponse.json({ message: 'Imagen no encontrada para eliminar' }, { status: 404 });
     }
 
+    // Borrado del archivo de imagen
     const filePath = path.join(process.cwd(), 'public/gallery', imageToDelete.fileName);
     try {
         await fs.unlink(filePath);
@@ -68,8 +74,17 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
         console.warn(`No se pudo borrar el archivo de imagen ${filePath}. Puede que ya no existiera.`);
     }
 
+    // Filtrado de los datos para eliminar la fila
     const remainingData = parsed.data.filter((row) => parseInt(row.id) !== idToDelete);
-    const newCsvContent = Papa.unparse(remainingData, { header: true });
+
+    // --- CORRECCIÓN CLAVE ---
+    // Al volver a convertir a CSV, le pasamos explícitamente los datos Y las cabeceras.
+    // Esto asegura que, incluso si `remainingData` está vacío, la cabecera siempre se escribirá.
+    const newCsvContent = Papa.unparse({
+      fields: headers || ['id', 'fileName', 'description', 'category'], // Pasamos las cabeceras
+      data: remainingData // Y los datos
+    });
+    
     await fs.writeFile(csvFilePath, newCsvContent, 'utf8');
 
     return NextResponse.json({ success: true, message: 'Imagen eliminada correctamente' });
