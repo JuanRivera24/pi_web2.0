@@ -3,75 +3,96 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useUser } from "@clerk/nextjs";
+// Ya no necesitas 'useUser' si no vas a filtrar por barbero.
+// import { useUser } from "@clerk/nextjs";
 
-// Definimos cómo se ve el objeto de una cita
-interface Cita {
-  id_cita: string;
-  id_cliente: string;
-  id_barbero: string;
-  id_sede: string;
-  fecha: string;
-  hora: string;
-  servicios: string; // "1,3"
-  estado: string;
+// La interfaz sigue siendo la misma, es correcta.
+interface CitaFromAPI {
+  id: string;
+  clienteId: string;
+  barberId: string;
+  sedeId: string;
+  start: string;
+  services: string;
+  title: string;
+  totalCost: string;
 }
 
-// Hacemos el componente asíncrono en el lado del cliente
-export default function BarberAgenda() {
-  const { user } = useUser(); // Obtenemos la info del barbero logueado
-  const [citas, setCitas] = useState<Cita[]>([]);
+// Cambiamos el nombre del componente para reflejar su nuevo propósito.
+export default function AllAppointmentsAgenda() {
+  const [citas, setCitas] = useState<CitaFromAPI[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Función para cargar las citas desde nuestra API
-    const fetchCitas = async () => {
-      if (!user) return; // Si no hay usuario, no hacemos nada
-
+    const fetchAllCitas = async () => {
       try {
-        const response = await fetch('/api/citas'); // Hacemos la petición a la API
+        const response = await fetch('/api/citas');
         if (!response.ok) {
           throw new Error('Error al obtener las citas');
         }
-        const data: Cita[] = await response.json();
-
-        // Filtramos las citas para mostrar solo las de este barbero
-        // IMPORTANTE: Suponemos que el `user.id` de Clerk coincide con `id_barbero` en el CSV.
-        const misCitas = data.filter(cita => cita.id_barbero === user.id);
         
-        // Ordenamos las citas por fecha y hora
-        misCitas.sort((a, b) => new Date(`${a.fecha}T${a.hora}`).getTime() - new Date(`${b.fecha}T${b.hora}`).getTime());
+        const allCitas: CitaFromAPI[] = await response.json();
 
-        setCitas(misCitas);
+        // Ordenamos TODAS las citas por fecha, ya no hay filtro.
+        allCitas.sort((a, b) => new Date(a.start).getTime() - new Date(b.start).getTime());
+
+        // Guardamos todas las citas en el estado para mostrarlas.
+        setCitas(allCitas);
+
       } catch (error) {
-        console.error(error);
+        console.error("Error al cargar las citas:", error);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchCitas();
-  }, [user]); // Se ejecuta cada vez que el objeto 'user' cambia
+    fetchAllCitas();
+  }, []); // El array de dependencias ahora está vacío porque ya no depende del 'user'.
 
   if (loading) {
-    return <p className="text-center text-gray-500">Cargando tu agenda...</p>;
+    return <p className="text-center text-gray-500">Cargando todas las citas...</p>;
   }
 
   if (citas.length === 0) {
-    return <p className="text-center text-gray-500">No tienes citas programadas por ahora.</p>;
+    return (
+      <div className="text-center p-6 bg-white rounded-lg shadow">
+          <h3 className="text-xl font-semibold text-gray-800">No hay citas programadas</h3>
+          <p className="text-gray-500 mt-2">El archivo de nuevas citas podría estar vacío.</p>
+      </div>
+    );
   }
 
   return (
     <div className="space-y-4">
-      {citas.map((cita) => (
-        <div key={cita.id_cita} className="bg-gray-50 p-4 rounded-lg border border-gray-200">
-          <p><strong>Fecha:</strong> {new Date(cita.fecha + 'T00:00:00').toLocaleDateString()}</p>
-          <p><strong>Hora:</strong> {cita.hora}</p>
-          <p><strong>Cliente ID:</strong> {cita.id_cliente}</p> 
-          {/* Más adelante reemplazaremos el ID por el nombre real del cliente */}
-          <p><strong>Servicios:</strong> {cita.servicios}</p>
-        </div>
-      ))}
+      <h2 className="text-2xl font-bold text-gray-800 mb-4">Todas las Próximas Citas</h2>
+      {citas.map((cita) => {
+        const fechaCita = new Date(cita.start);
+        let serviciosMostrables = '';
+        try {
+          serviciosMostrables = JSON.parse(cita.services).join(', ');
+        } catch {
+          serviciosMostrables = cita.services;
+        }
+
+        return (
+          <div key={cita.id} className="bg-white p-4 rounded-lg border border-gray-200 shadow-sm transition hover:shadow-md">
+            <div className="flex justify-between items-center">
+                <h3 className="font-bold text-lg text-blue-600">{cita.title}</h3>
+                <span className="text-sm font-medium bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
+                  ${parseFloat(cita.totalCost).toLocaleString('es-CO')}
+                </span>
+            </div>
+            <div className="mt-3 border-t pt-3 text-gray-700 space-y-1">
+              <p><strong className="font-semibold">Fecha:</strong> {fechaCita.toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
+              <p><strong className="font-semibold">Hora:</strong> {fechaCita.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}</p>
+              {/* Añadimos el ID del barbero a la vista para saber a quién pertenece cada cita */}
+              <p><strong className="font-semibold">Barbero ID:</strong> {cita.barberId}</p>
+              <p><strong className="font-semibold">Cliente ID:</strong> {cita.clienteId}</p>
+              <p><strong className="font-semibold">Servicios (IDs):</strong> {serviciosMostrables}</p>
+            </div>
+          </div>
+        );
+      })}
     </div>
   );
 }
