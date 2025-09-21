@@ -11,6 +11,8 @@
   "dependencies": {
     "@clerk/clerk-react": "^5.46.2",
     "@clerk/nextjs": "^6.31.10",
+    "@headlessui/react": "^2.2.8",
+    "csv-parse": "^6.1.0",
     "date-fns": "^4.1.0",
     "framer-motion": "^12.23.12",
     "next": "15.4.5",
