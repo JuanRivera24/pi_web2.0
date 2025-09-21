@@ -1,26 +1,28 @@
-// src/components/dashboard/BarberAgenda.tsx
-
 "use client";
 
 import { useEffect, useState } from "react";
-// Ya no necesitas 'useUser' si no vas a filtrar por barbero.
-// import { useUser } from "@clerk/nextjs";
 
-// La interfaz sigue siendo la misma, es correcta.
-interface CitaFromAPI {
+// Actualizamos la interfaz para que TypeScript sepa de los nuevos datos que llegan
+interface CitaEnriquecida {
   id: string;
   clienteId: string;
-  barberId: string;
-  sedeId: string;
+  barberId: string; // Aún lo tenemos por si lo necesitamos
   start: string;
-  services: string;
   title: string;
   totalCost: string;
+  // Nuevos objetos con información detallada
+  barberoInfo: {
+    id: string;
+    nombre: string;
+  };
+  serviciosInfo: {
+    id: string;
+    nombre: string;
+  }[];
 }
 
-// Cambiamos el nombre del componente para reflejar su nuevo propósito.
 export default function AllAppointmentsAgenda() {
-  const [citas, setCitas] = useState<CitaFromAPI[]>([]);
+  const [citas, setCitas] = useState<CitaEnriquecida[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -31,12 +33,8 @@ export default function AllAppointmentsAgenda() {
           throw new Error('Error al obtener las citas');
         }
         
-        const allCitas: CitaFromAPI[] = await response.json();
-
-        // Ordenamos TODAS las citas por fecha, ya no hay filtro.
+        const allCitas: CitaEnriquecida[] = await response.json();
         allCitas.sort((a, b) => new Date(a.start).getTime() - new Date(b.start).getTime());
-
-        // Guardamos todas las citas en el estado para mostrarlas.
         setCitas(allCitas);
 
       } catch (error) {
@@ -45,9 +43,8 @@ export default function AllAppointmentsAgenda() {
         setLoading(false);
       }
     };
-
     fetchAllCitas();
-  }, []); // El array de dependencias ahora está vacío porque ya no depende del 'user'.
+  }, []);
 
   if (loading) {
     return <p className="text-center text-gray-500">Cargando todas las citas...</p>;
@@ -67,12 +64,14 @@ export default function AllAppointmentsAgenda() {
       <h2 className="text-2xl font-bold text-gray-800 mb-4">Todas las Próximas Citas</h2>
       {citas.map((cita) => {
         const fechaCita = new Date(cita.start);
-        let serviciosMostrables = '';
-        try {
-          serviciosMostrables = JSON.parse(cita.services).join(', ');
-        } catch {
-          serviciosMostrables = cita.services;
-        }
+        
+        // --- AQUÍ LA CORRECCIÓN FINAL ---
+        // Comprobamos si el array tiene elementos antes de mapearlo.
+        const serviciosTexto = cita.serviciosInfo && cita.serviciosInfo.length > 0
+          ? cita.serviciosInfo
+              .map(servicio => `${servicio.nombre} (ID: ${servicio.id})`)
+              .join(', ')
+          : 'No especificado'; // Si está vacío, mostramos este texto.
 
         return (
           <div key={cita.id} className="bg-white p-4 rounded-lg border border-gray-200 shadow-sm transition hover:shadow-md">
@@ -85,10 +84,11 @@ export default function AllAppointmentsAgenda() {
             <div className="mt-3 border-t pt-3 text-gray-700 space-y-1">
               <p><strong className="font-semibold">Fecha:</strong> {fechaCita.toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
               <p><strong className="font-semibold">Hora:</strong> {fechaCita.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}</p>
-              {/* Añadimos el ID del barbero a la vista para saber a quién pertenece cada cita */}
-              <p><strong className="font-semibold">Barbero ID:</strong> {cita.barberId}</p>
+              
+              {/* Mostramos los nuevos datos */}
+              <p><strong className="font-semibold">Barbero:</strong> {`${cita.barberoInfo.nombre} (ID: ${cita.barberoInfo.id})`}</p>
               <p><strong className="font-semibold">Cliente ID:</strong> {cita.clienteId}</p>
-              <p><strong className="font-semibold">Servicios (IDs):</strong> {serviciosMostrables}</p>
+              <p><strong className="font-semibold">Servicios:</strong> {serviciosTexto}</p>
             </div>
           </div>
         );
