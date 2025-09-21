@@ -1,5 +1,3 @@
-// src/components/layout/BarberNavbar.tsx
-
 "use client";
 
 import Link from "next/link";
@@ -17,7 +15,22 @@ export default function BarberNavbar() {
       
       <div className="flex items-center space-x-6">
         <ul className="flex space-x-6 text-white/90 font-medium items-center">
-          {/* Futuros botones para el barbero pueden ir aquí. Ej: <li><Link href="/dashboard/barber/agenda">Agenda</Link></li> */}
+          
+          {/* --- ENLACE AÑADIDO AL DASHBOARD --- */}
+          <li>
+            {/* Usamos un <a> normal dentro de Link porque es una URL externa */}
+            <Link 
+              href="http://localhost:8501/" 
+              passHref
+              legacyBehavior
+            >
+              <a target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors cursor-pointer">
+                Dashboard
+              </a>
+            </Link>
+          </li>
+          {/* --- FIN DEL ENLACE AÑADIDO --- */}
+
           <li>
             <ScrollLink
               to="contacto" // Esto hará scroll a la sección de contacto en su página

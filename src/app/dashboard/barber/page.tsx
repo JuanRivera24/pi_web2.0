@@ -1,17 +1,16 @@
-// src/app/dashboard/barber/page.tsx (Completo y Actualizado)
-
 import Image from "next/image";
+import Link from "next/link"; // 1. Importa el componente Link de Next.js
 import ContactSection from "@/components/contactform/ContactForm";
-import BarberAgenda from "@/components/dashboard/BarberAgenda"; // 1. Importamos el componente de la agenda
+import BarberAgenda from "@/components/dashboard/BarberAgenda"; 
 
 export default function BarberHomePage() {
   return (
     <> {/* Usamos un Fragment porque el <main> ya está en el layout */}
       
-      {/* HERO Section (Modificada para el barbero) */}
+      {/* HERO Section (sin cambios) */}
       <section id="hero" className="relative isolate w-full min-h-screen flex items-center pt-24">
         <Image
-          src="/Images/fondo-barberia.jpg" // Reutilizamos la misma imagen de fondo
+          src="/Images/fondo-barberia.jpg" 
           alt="Barbería"
           fill
           priority
@@ -29,22 +28,41 @@ export default function BarberHomePage() {
           <p className="mt-4 text-base sm:text-lg text-white/85">
             Gestiona tu agenda y mantente en contacto con nosotros.
           </p>
-          {/* Los botones de "Agendar cita" y "Ver servicios" han sido eliminados */}
         </div>
       </section>
 
-      {/* Sección de "Tu Agenda" con el componente funcional */}
+      {/* Sección de "Tu Agenda" (sin cambios) */}
       <section id="agenda" className="scroll-mt-24 py-16">
         <div className="mx-auto w-full max-w-screen-2xl px-4 sm:px-6 lg:px-8">
           <h2 className="text-3xl font-bold tracking-tight text-gray-900 mb-8">Tu Agenda</h2>
           <div className="w-full rounded-2xl bg-white shadow-sm ring-1 ring-gray-200 p-6 min-h-[300px]">
-            {/* 2. Aquí usamos el componente BarberAgenda en lugar del texto de marcador */}
             <BarberAgenda />
           </div>
         </div>
       </section>
 
-      {/* Contacto (se mantiene como pediste) */}
+      {/* --- NUEVA SECCIÓN PARA EL DASHBOARD --- */}
+      <section id="dashboard-general" className="scroll-mt-24 py-16 bg-gray-50">
+        <div className="mx-auto w-full max-w-screen-2xl px-4 sm:px-6 lg:px-8 text-center">
+          <h2 className="text-3xl font-bold tracking-tight text-gray-900 mb-4">Análisis de Datos</h2>
+          <p className="text-lg text-gray-600 mb-8 max-w-2xl mx-auto">
+            Explora las métricas y visualizaciones de tu rendimiento en nuestro dashboard general.
+          </p>
+          {/* 2. Usamos Link para la navegación externa, con target="_blank" para abrir en una nueva pestaña */}
+          <Link
+            href="http://localhost:8501/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-block bg-blue-600 text-white font-semibold py-3 px-8 rounded-lg shadow-md hover:bg-blue-700 transition-transform duration-300 hover:scale-105"
+          >
+            Dashboard General
+          </Link>
+        </div>
+      </section>
+      {/* --- FIN DE LA NUEVA SECCIÓN --- */}
+
+
+      {/* Contacto (sin cambios) */}
       <section id="contacto" className="scroll-mt-24 py-16">
         <div className="mx-auto w-full max-w-screen-2xl px-4 sm:px-6 lg:px-8">
           <h2 className="text-3xl font-bold tracking-tight text-gray-900 mb-8">Contáctanos</h2>
