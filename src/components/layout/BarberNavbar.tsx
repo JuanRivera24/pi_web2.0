@@ -1,3 +1,5 @@
+// En: src/components/layout/BarberNavbar.tsx
+
 "use client";
 
 import Link from "next/link";
@@ -10,15 +12,19 @@ export default function BarberNavbar() {
   return (
     <nav className="fixed top-0 left-0 w-full bg-blue-900 shadow-md px-6 py-4 flex justify-between items-center z-50">
       <Link href="/dashboard/barber">
-        {/* Asegúrate de que la ruta a tu logo sea correcta. Si tu carpeta 'public' está en la raíz, '/Images/Logo.png' está bien. */}
+        {/* Usar el componente <Image> de Next.js es una mejor práctica para optimización */}
         <img src="/Images/Logo.png" alt="Logo de la página" className="h-10 w-auto" />
       </Link>
       
       <div className="flex items-center space-x-6">
         <ul className="flex space-x-6 text-white/90 font-medium items-center">
           
-          {/* --- ENLACE CORREGIDO --- */}
+          {/* --- ENLACE AL DASHBOARD GENERAL (CORREGIDO) --- */}
           <li>
+            {/* 
+              Corrección: Se eliminaron `legacyBehavior` y `passHref`.
+              El componente <Link> ahora pasa automáticamente las propiedades a la etiqueta <a> hija.
+            */}
             <Link 
               href="http://localhost:8501/" 
               target="_blank" 
@@ -28,11 +34,18 @@ export default function BarberNavbar() {
               Dashboard
             </Link>
           </li>
-          {/* --- FIN DEL ENLACE CORREGIDO --- */}
+          
+          {/* --- NUEVO ENLACE A LA GALERÍA --- */}
+          <li>
+            <Link href="/dashboard/barber/gallery" className="hover:text-white transition-colors cursor-pointer">
+              Galería
+            </Link>
+          </li>
+          {/* --- FIN DEL ENLACE A LA GALERÍA --- */}
 
           <li>
             <ScrollLink
-              to="contacto" // Esto hará scroll a la sección de contacto en su página
+              to="contacto" // Asumiendo que 'contacto' es un ID en tu página principal
               smooth
               duration={600}
               offset={-50}
