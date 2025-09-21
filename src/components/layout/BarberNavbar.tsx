@@ -10,26 +10,25 @@ export default function BarberNavbar() {
   return (
     <nav className="fixed top-0 left-0 w-full bg-blue-900 shadow-md px-6 py-4 flex justify-between items-center z-50">
       <Link href="/dashboard/barber">
+        {/* Asegúrate de que la ruta a tu logo sea correcta. Si tu carpeta 'public' está en la raíz, '/Images/Logo.png' está bien. */}
         <img src="/Images/Logo.png" alt="Logo de la página" className="h-10 w-auto" />
       </Link>
       
       <div className="flex items-center space-x-6">
         <ul className="flex space-x-6 text-white/90 font-medium items-center">
           
-          {/* --- ENLACE AÑADIDO AL DASHBOARD --- */}
+          {/* --- ENLACE CORREGIDO --- */}
           <li>
-            {/* Usamos un <a> normal dentro de Link porque es una URL externa */}
             <Link 
               href="http://localhost:8501/" 
-              passHref
-              legacyBehavior
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className="hover:text-white transition-colors cursor-pointer"
             >
-              <a target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors cursor-pointer">
-                Dashboard
-              </a>
+              Dashboard
             </Link>
           </li>
-          {/* --- FIN DEL ENLACE AÑADIDO --- */}
+          {/* --- FIN DEL ENLACE CORREGIDO --- */}
 
           <li>
             <ScrollLink
