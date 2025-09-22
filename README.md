@@ -1,5 +1,5 @@
 ======================================================================
-          👑 KINGDOM BARBER - PLATAFORMA DE GESTIÓN DE CITAS
+👑 KINGDOM BARBER - PLATAFORMA DE GESTIÓN DE CITAS
 ======================================================================
 
 Kingdom Barber es una aplicación web completa desarrollada con Next.js 
