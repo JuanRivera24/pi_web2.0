@@ -1,36 +1,82 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+======================================================================
+👑 KINGDOM BARBER - PLATAFORMA DE GESTIÓN DE CITAS
+======================================================================
 
-## Getting Started
+Kingdom Barber es una aplicación web completa desarrollada con Next.js 
+(React + TypeScript), diseñada para modernizar y optimizar la gestión 
+de una barbería. 
 
-First, run the development server:
+La plataforma ofrece una experiencia de usuario fluida tanto para los 
+clientes que desean reservar citas como para los barberos que necesitan 
+administrar su agenda y servicios.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+-----------------------------
+-- ARQUITECTURA DEL PROYECTO --
+-----------------------------
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+El proyecto sigue una estructura modular que facilita su mantenimiento 
+y escalabilidad:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- `app/`: Carpeta principal de Next.js con las páginas y layouts.
+- `app/page.tsx`: Página principal de la aplicación.
+- `app/servicios/page.tsx`: Catálogo de servicios con filtros y carrito 
+   de selección.
+- `components/`: Componentes reutilizables de la interfaz (Navbar, Footer, Cards, etc.).
+- `styles/`: Archivos de estilos, integrados con Tailwind CSS.
+- `lib/` o `api/`: Endpoints y lógica de comunicación con la base de datos (CSV o APIs).
+- `public/`: Recursos estáticos como imágenes, íconos y logos.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+-----------------------------
+--     FUNCIONALIDADES CLAVE --
+-----------------------------
 
-## Learn More
+### 1. Para Clientes (👤)
 
-To learn more about Next.js, take a look at the following resources:
+**a) Autenticación de Usuarios (🔑):**
+- Sistema de registro e inicio de sesión seguro.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+**b) Sistema de Reservas Avanzado (📅):**
+- Calendario interactivo con vistas de día, semana y mes.
+- Selección personalizada de sede, barbero y servicios.
+- Creación, modificación y cancelación de citas en tiempo real.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+**c) Exploración de Servicios (💈):**
+- Página dedicada con un carrusel de servicios y descripciones detalladas.
 
-## Deploy on Vercel
+**d) Geolocalización (📍):**
+- Mapa interactivo que muestra la ubicación de todas las sedes.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+**e) Formulario de Contacto (💬):**
+- Canal directo para que los clientes envíen sus consultas.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+**f) Página Informativa (ℹ️):**
+- Sección "Sobre Nosotros" para conocer más sobre la historia y el equipo.
+
+---
+
+### 2. Para Barberos (✂️)
+
+**a) Acceso Exclusivo (🔑):**
+- Panel de control personalizado al iniciar sesión como barbero.
+
+**b) Gestión de Agenda (🗓️):**
+- Visualización clara de todas las citas asignadas, 
+  permitiendo una organización eficiente del día a día.
+
+**c) Galería de Trabajos (🖼️):**
+- Sección para mostrar los mejores cortes y estilos, 
+  construida con carga optimizada de imágenes en Next.js.
+
+**d) Acceso a Análisis de Datos (📊):**
+- Enlace directo en la barra de navegación hacia un 
+  Dashboard externo en Python + Pandas para visualizar métricas.
+
+-----------------------------
+--   TECNOLOGÍAS UTILIZADAS  --
+-----------------------------
+
+- **Frontend:** Next.js (React + TypeScript)
+- **Styling:** Tailwind CSS
+- **Backend & Data Storage:** APIs en Node.js con archivos CSV como base de datos
+- **Análisis de Datos (Integración):** Python + Pandas
+- **Despliegue:** Preparado para Vercel
