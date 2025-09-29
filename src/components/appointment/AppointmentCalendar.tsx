@@ -17,7 +17,6 @@ const cn = (...c: (string | false | undefined)[]) => c.filter(Boolean).join(" ")
 const locales: Record<string, Locale> = { es };
 const localizer = dateFnsLocalizer({ format, parse, startOfWeek: (date: Date) => dfStartOfWeek(date, { weekStartsOn: 1 }), getDay, locales });
 type ToastType = "success" | "error" | "info";
-
 type ToolbarProps = { label: string; onNavigate: (a: "PREV" | "NEXT" | "TODAY" | "DATE") => void; onView: (v: View) => void; view: View; };
 
 const Toolbar = ({ label, onNavigate, onView, view }: ToolbarProps) => {
@@ -65,7 +64,7 @@ export default function AppointmentCalendar() {
           fetch(`${API_URL}/sedes`),
           fetch(`${API_URL}/barberos`),
           fetch(`${API_URL}/servicios`),
-          fetch(`${API_URL}/citas`)
+          fetch(`${API_URL}/nuevas_citas`) // <-- CORRECCIÓN #1
         ]);
         if (!sedesRes.ok || !barberosRes.ok || !serviciosRes.ok || !citasRes.ok) {
           throw new Error('Fallo al cargar datos iniciales desde la API');
@@ -100,15 +99,10 @@ export default function AppointmentCalendar() {
 
   const filteredBarberos = useMemo(() => {
     if (!selectedSede) return [];
-    // --- LÍNEA CORREGIDA ---
-    // Comparamos los IDs como strings para evitar problemas de tipo (número vs texto)
     return barberos.filter(barbero => String(barbero.ID_Sede) === String(selectedSede));
   }, [selectedSede, barberos]);
 
-  useEffect(() => {
-    setSelectedBarbero("");
-  }, [selectedSede]);
-
+  useEffect(() => { setSelectedBarbero(""); }, [selectedSede]);
   const hours = useMemo(() => Array.from({ length: 13 }, (_, i) => i + 10), []);
   const minTime = useMemo(() => new Date(1970, 0, 1, 10, 0, 0), []);
   const maxTime = useMemo(() => new Date(1970, 0, 1, 22, 0, 0), []);
@@ -123,11 +117,9 @@ export default function AppointmentCalendar() {
     if (slot.start < new Date()) { showToast("No puedes agendar en el pasado", "error"); return; }
     setSelectedDate(slot.start); setEditingEvent(null); setSelectedSede(""); setSelectedBarbero(""); setSelectedServicios([]); setSelectedHour(10);
   };
-
   const handleServicioChange = (servicioId: string) => {
     setSelectedServicios(prev => prev.includes(servicioId) ? prev.filter(id => id !== servicioId) : [...prev, servicioId]);
   };
-
   const handleSaveAppointment = async () => {
     if (!user || !selectedDate || !selectedSede || !selectedBarbero || selectedServicios.length === 0) {
       showToast("Por favor, completa todos los campos.", "error"); return;
@@ -143,7 +135,8 @@ export default function AppointmentCalendar() {
       title: generateEventTitle({ barberoId: selectedBarbero, clienteId: user.id }, barberos, user.id),
     };
     try {
-      const url = editingEvent ? `${API_URL}/citas/${editingEvent.id}` : `${API_URL}/citas`;
+      // --- CORRECCIÓN DEFINITIVA #2 ---
+      const url = editingEvent ? `${API_URL}/nuevas_citas/${editingEvent.id}` : `${API_URL}/nuevas_citas`;
       const response = await fetch(url, {
         method: editingEvent ? 'PUT' : 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -152,12 +145,7 @@ export default function AppointmentCalendar() {
       if (!response.ok) { throw new Error((await response.json()).message || 'Error del servidor'); }
       const savedResult = await response.json();
       const citaGuardada = savedResult.data;
-      const newEvent: AppointmentEvent = {
-        id: citaGuardada.id, title: generateEventTitle(citaGuardada, barberos, user.id),
-        start: new Date(citaGuardada.start), end: new Date(citaGuardada.end),
-        userId: citaGuardada.clienteId, sedeId: citaGuardada.sedeId, barberoId: citaGuardada.barberId,
-        servicioIds: JSON.parse(citaGuardada.services),
-      };
+      const newEvent: AppointmentEvent = { id: citaGuardada.id, title: generateEventTitle(citaGuardada, barberos, user.id), start: new Date(citaGuardada.start), end: new Date(citaGuardada.end), userId: citaGuardada.clienteId, sedeId: citaGuardada.sedeId, barberoId: citaGuardada.barberId, servicioIds: JSON.parse(citaGuardada.services) };
       if (editingEvent) {
         setEvents(prev => prev.map(ev => String(ev.id) === String(newEvent.id) ? newEvent : ev));
         showToast("Cita actualizada con éxito", "success");
@@ -171,12 +159,12 @@ export default function AppointmentCalendar() {
       showToast(error.message, "error");
     }
   };
-
   const handleDeleteAppointment = async () => {
-    if (!editingEvent || !user || editingEvent.userId !== user.id) return;
+    if (!editingEvent) return;
     if (!window.confirm("¿Estás seguro de que quieres eliminar esta cita?")) { return; }
     try {
-      const response = await fetch(`${API_URL}/citas/${editingEvent.id}`, { method: 'DELETE' });
+      // --- CORRECCIÓN DEFINITIVA #3 ---
+      const response = await fetch(`${API_URL}/nuevas_citas/${editingEvent.id}`, { method: 'DELETE' });
       if (!response.ok) { throw new Error((await response.json()).message || 'Error al eliminar'); }
       setEvents(prev => prev.filter(e => String(e.id) !== String(editingEvent.id)));
       showToast("Cita eliminada correctamente", "success");
@@ -216,23 +204,9 @@ export default function AppointmentCalendar() {
                 <label htmlFor="barbero" className="block mb-2 font-medium text-gray-700">2. Selecciona tu Barbero</label>
                 <Listbox value={selectedBarbero} onChange={setSelectedBarbero} disabled={!selectedSede || filteredBarberos.length === 0}>
                   <div className="relative mt-1">
-                    <Listbox.Button id="barbero" className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-300 disabled:bg-gray-100 relative cursor-default text-left bg-white">
-                      <span className="block truncate text-black">{(() => { const b = barberos.find(b => String(b.ID_Barbero) === String(selectedBarbero)); return b ? `${b.Nombre_Barbero} ${b.Apellido_Barbero || ''}` : selectedSede ? "-- Elige un barbero --" : "-- Primero selecciona una sede --"; })()}</span>
-                      <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5 text-gray-400" aria-hidden="true"><path fillRule="evenodd" d="M10 3a.75.75 0 01.53.22l3.5 3.5a.75.75 0 01-1.06 1.06L10 4.81 6.03 8.78a.75.75 0 01-1.06-1.06l3.5-3.5A.75.75 0 0110 3z" transform="rotate(180 10 10)" /></svg></span>
-                    </Listbox.Button>
+                    <Listbox.Button id="barbero" className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-300 disabled:bg-gray-100 relative cursor-default text-left bg-white"><span className="block truncate text-black">{(() => { const b = barberos.find(b => String(b.ID_Barbero) === String(selectedBarbero)); return b ? `${b.Nombre_Barbero} ${b.Apellido_Barbero || ''}` : selectedSede ? "-- Elige un barbero --" : "-- Primero selecciona una sede --"; })()}</span><span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5 text-gray-400" aria-hidden="true"><path fillRule="evenodd" d="M10 3a.75.75 0 01.53.22l3.5 3.5a.75.75 0 01-1.06 1.06L10 4.81 6.03 8.78a.75.75 0 01-1.06-1.06l3.5-3.5A.75.75 0 0110 3z" transform="rotate(180 10 10)" /></svg></span></Listbox.Button>
                     <Transition as={Fragment} leave="transition ease-in duration-100" leaveFrom="opacity-100" leaveTo="opacity-0">
-                      <Listbox.Options className="absolute mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black/5 focus:outline-none sm:text-sm z-10">
-                        {filteredBarberos.map((barbero) => (
-                          <Listbox.Option key={barbero.ID_Barbero} className={({ active }) => `relative cursor-default select-none py-2 pl-10 pr-4 ${active ? 'bg-blue-100 text-blue-900' : 'text-gray-900'}`} value={barbero.ID_Barbero}>
-                            {({ selected }) => (
-                              <>
-                                <span className={`block truncate ${selected ? 'font-medium' : 'font-normal'}`}>{barbero.Nombre_Barbero} {barbero.Apellido_Barbero || ''}</span>
-                                {selected ? (<span className="absolute inset-y-0 left-0 flex items-center pl-3 text-blue-600"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5"><path fillRule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.052-.143z" clipRule="evenodd" /></svg></span>) : null}
-                              </>
-                            )}
-                          </Listbox.Option>
-                        ))}
-                      </Listbox.Options>
+                      <Listbox.Options className="absolute mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black/5 focus:outline-none sm:text-sm z-10">{filteredBarberos.map((barbero) => (<Listbox.Option key={barbero.ID_Barbero} className={({ active }) => `relative cursor-default select-none py-2 pl-10 pr-4 ${active ? 'bg-blue-100 text-blue-900' : 'text-gray-900'}`} value={barbero.ID_Barbero}>{({ selected }) => (<><span className={`block truncate ${selected ? 'font-medium' : 'font-normal'}`}>{barbero.Nombre_Barbero} {barbero.Apellido_Barbero || ''}</span>{selected ? (<span className="absolute inset-y-0 left-0 flex items-center pl-3 text-blue-600"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5"><path fillRule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.052-.143z" clipRule="evenodd" /></svg></span>) : null}</>)}</Listbox.Option>))}</Listbox.Options>
                     </Transition>
                   </div>
                 </Listbox>

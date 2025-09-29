@@ -32,12 +32,13 @@ export default function BarberAgenda() {
   useEffect(() => {
     const fetchAllCitas = async () => {
       try {
-        const response = await fetch(`${API_URL}/citas`);
+        // --- CORRECCIÓN #1: Apuntamos al endpoint correcto ---
+        const response = await fetch(`${API_URL}/nuevas_citas`);
         if (!response.ok) {
           throw new Error('Error al obtener las citas desde la API');
         }
         const allCitas: CitaDesdeAPI[] = await response.json();
-        // La API ya las envía ordenadas, así que el sort aquí es opcional
+        // La API ya las envía ordenadas
         setCitas(allCitas);
       } catch (err: any) {
         console.error("Error al cargar las citas:", err);
@@ -54,7 +55,8 @@ export default function BarberAgenda() {
       return;
     }
     try {
-      const response = await fetch(`${API_URL}/citas/${citaId}`, {
+      // --- CORRECCIÓN #2: Apuntamos al endpoint correcto para borrar ---
+      const response = await fetch(`${API_URL}/nuevas_citas/${citaId}`, {
         method: 'DELETE',
       });
       if (!response.ok) {
@@ -66,7 +68,7 @@ export default function BarberAgenda() {
       showToast("Cita cancelada exitosamente.");
     } catch (err: any) {
       console.error("Error al cancelar la cita:", err);
-      alert(`Error: ${err.message}`); // Usamos alert para errores críticos
+      alert(`Error: ${err.message}`);
     }
   };
 
