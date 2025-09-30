@@ -131,6 +131,21 @@ return (
                 </a>
 
                 {/* Instagram */}
+                <a 
+                  href="https://instagram.com/kingdombarber" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="cursor-pointer hover:opacity-80 transition-opacity duration-300"
+                >
+                  <Image 
+                    src="/images/logoigg.png"
+                    alt="Instagram Kingdom Barber"
+                    width={24}
+                    height={24}
+                    className="w-6 h-6"
+                  />
+                </a>
+
                 
               </div>
             </div>
