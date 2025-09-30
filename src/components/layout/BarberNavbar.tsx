@@ -12,7 +12,6 @@ export default function BarberNavbar() {
   return (
     <nav className="fixed top-0 left-0 w-full bg-blue-900 shadow-md px-6 py-4 flex justify-between items-center z-50">
       <Link href="/dashboard/barber">
-        {/* Usar el componente <Image> de Next.js es una mejor práctica para optimización */}
         <img src="/Images/Logo.png" alt="Logo de la página" className="h-10 w-auto" />
       </Link>
       
@@ -22,7 +21,6 @@ export default function BarberNavbar() {
           {/* --- ENLACE AL DASHBOARD GENERAL (CORREGIDO) --- */}
           <li>
             {/* 
-              Corrección: Se eliminaron `legacyBehavior` y `passHref`.
               El componente <Link> ahora pasa automáticamente las propiedades a la etiqueta <a> hija.
             */}
             <Link 
@@ -35,7 +33,7 @@ export default function BarberNavbar() {
             </Link>
           </li>
           
-          {/* --- NUEVO ENLACE A LA GALERÍA --- */}
+          {/* --- ENLACE A LA GALERÍA --- */}
           <li>
             <Link href="/dashboard/barber/gallery" className="hover:text-white transition-colors cursor-pointer">
               Galería
