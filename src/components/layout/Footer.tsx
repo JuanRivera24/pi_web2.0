@@ -4,7 +4,7 @@ return (
 <section id="mapa" className="content mapa scroll-mt-24">
 <iframe
 title="Sedes Kingdom Barber"
-src="https://www.google.com/maps/d/embed?mid=1UghUE7HuOiYwNQYHlobXSNH_d7Oc10Q&ehbc=2E312F&noprof=1"
+src="https://www.google.com/maps/d/embed?mid=1S-kqNA4B0xWaYsdzM4P2ChnU-4_WrJ0&ehbc=2E312F"
 width="100%"
 height="250"
 loading="lazy"
