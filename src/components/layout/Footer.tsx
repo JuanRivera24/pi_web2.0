@@ -115,6 +115,21 @@ return (
               <div className="flex justify-center md:justify-end gap-4 mt-2">
                 {/* Iconos de redes sociales */}
                 {/* WhatsApp */}
+                <a 
+                  href="https://wa.me/573001234567" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="cursor-pointer hover:opacity-80 transition-opacity duration-300"
+                >
+                  <Image 
+                    src="/Images/logowpp.png"
+                    alt="WhatsApp Kingdom Barber"
+                    width={24}
+                    height={24}
+                    className="w-6 h-6"
+                  />
+                </a>
+
                 
               </div>
             </div>
