@@ -62,6 +62,41 @@ return (
         />
       </section>
 
+      {/* Sección de Sedes */}
+      <section className="py-8 px-4 bg-blue-900">
+        <div className="max-w-6xl mx-auto">
+          <h3 className="text-2xl font-bold text-center mb-8 text-yellow-400">
+            Nuestras Sedes
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
+            {sedes.map((sede, index) => (
+              <div 
+                key={index} 
+                className="bg-blue-800 p-4 rounded-lg hover:bg-blue-700 transition-colors duration-300"
+              >
+                <h4 className="font-bold text-lg mb-2 text-yellow-300">
+                  {sede.nombre}
+                </h4>
+                <div className="space-y-2 text-sm">
+                  <p className="flex items-start">
+                    <span className="mr-2">📍</span>
+                    {sede.direccion}
+                  </p>
+                  <p className="flex items-center">
+                    <span className="mr-2">📞</span>
+                    {sede.telefono}
+                  </p>
+                  <p className="flex items-center">
+                    <span className="mr-2">🕒</span>
+                    {sede.horario}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       
 
       {/* Copyright */}
