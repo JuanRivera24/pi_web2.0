@@ -63,5 +63,14 @@ return (
       </section>
 
       
+
+      {/* Copyright */}
+      <div className="text-center py-4 bg-blue-950 border-t border-blue-800">
+        <p className="text-blue-300">
+          Kingdom Barber ® {new Date().getFullYear()} | Todos los derechos reservados
+        </p>
+      </div>
+    </footer>
+  );
   
 }
