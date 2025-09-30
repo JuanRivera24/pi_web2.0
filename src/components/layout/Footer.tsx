@@ -97,7 +97,30 @@ return (
         </div>
       </section>
 
-      
+      {/* Información de Contacto General */}
+      <section className="py-6 bg-blue-950 border-t border-blue-700">
+        <div className="max-w-6xl mx-auto px-4">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+            <div className="text-center md:text-left">
+              <h4 className="font-bold text-lg mb-2">Kingdom Barber</h4>
+              <p className="text-blue-200">Tu estilo, nuestra pasión</p>
+            </div>
+            <div className="text-center">
+              <p className="text-blue-200">📧 info@kingdombarber.com</p>
+              <p className="text-blue-200">🌐 www.kingdombarber.com</p>
+            </div>
+            <div className="text-center md:text-right">
+              <p className="text-blue-200">Síguenos en redes sociales</p>
+              <div className="flex justify-center md:justify-end gap-4 mt-2">
+                {/* Iconos de redes sociales - puedes reemplazar con iconos reales */}
+                <span className="cursor-pointer hover:text-yellow-400">📘</span>
+                <span className="cursor-pointer hover:text-yellow-400">📷</span>
+                <span className="cursor-pointer hover:text-yellow-400">🐦</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
 
       {/* Copyright */}
       <div className="text-center py-4 bg-blue-950 border-t border-blue-800">
