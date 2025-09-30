@@ -3,7 +3,7 @@ return (
 <footer className="bg-blue-950 text-white mt-8">
 <section id="mapa" className="content mapa scroll-mt-24">
 <iframe
-title="Mapa de Kingdom Barber"
+title="Sedes Kingdom Barber"
 src="https://www.google.com/maps/d/embed?mid=1UghUE7HuOiYwNQYHlobXSNH_d7Oc10Q&ehbc=2E312F&noprof=1"
 width="100%"
 height="250"
