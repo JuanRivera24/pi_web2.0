@@ -1,5 +1,3 @@
-// En: /app/dashboard/barber/gallery/page.tsx
-
 "use client";
 
 import { useState, useEffect, FormEvent } from 'react';
@@ -8,19 +6,20 @@ import Image from 'next/image';
 
 interface GalleryImage {
   id: number;
-  fileName: string; 
+  fileName: string;
   description: string;
   category: string;
 }
 
-// --- FUNCIÓN AUXILIAR MEJORADA ---
-// Esta función toma el nombre del archivo y construye la URL web de forma segura.
-const buildImageUrl = (fileName: any): string => {
+const API_URL = 'http://localhost:3001';
+
+// Esta función construye la URL web completa de la imagen desde la API
+const buildImageUrl = (fileName: string): string => {
   if (typeof fileName !== 'string' || !fileName.trim()) {
     return ''; // Devuelve una cadena vacía si el nombre del archivo no es válido
   }
-  // Construye la ruta web correcta que Next.js puede entender.
-  return `/gallery/${fileName}`;
+  // La API sirve los archivos desde /gallery, así que construimos la URL completa
+  return `${API_URL}/gallery/${fileName}`;
 }
 
 export default function GalleryPage() {
@@ -43,7 +42,7 @@ export default function GalleryPage() {
   const fetchImages = async () => {
     setIsLoading(true);
     try {
-      const response = await fetch('/api/gallery');
+      const response = await fetch(`${API_URL}/gallery`);
       const data = await response.json();
       setImages(data);
     } catch (error) {
@@ -68,15 +67,18 @@ export default function GalleryPage() {
     formData.append('category', category);
 
     try {
-      const response = await fetch('/api/upload', {
+      const response = await fetch(`${API_URL}/gallery/upload`, {
         method: 'POST',
         body: formData,
       });
 
-      if (!response.ok) throw new Error('Error en la subida');
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Error en la subida del archivo');
+      }
       
       closeModal();
-      await fetchImages();
+      await fetchImages(); // Recargamos las imágenes para ver la nueva
 
     } catch (error: any) {
       setUploadError(error.message);
@@ -88,7 +90,7 @@ export default function GalleryPage() {
   const handleDelete = async (id: number) => {
     if (confirm('¿Estás seguro de que quieres eliminar esta imagen?')) {
       try {
-        await fetch(`/api/gallery/${id}`, { method: 'DELETE' });
+        await fetch(`${API_URL}/gallery/${id}`, { method: 'DELETE' });
         setImages(images.filter(img => img.id !== id));
       } catch (error) {
         alert('Error al eliminar la imagen.');
@@ -103,7 +105,7 @@ export default function GalleryPage() {
 
   const handleSaveEdit = async (id: number) => {
     try {
-      const response = await fetch(`/api/gallery/${id}`, {
+      const response = await fetch(`${API_URL}/gallery/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(editText),
@@ -150,8 +152,6 @@ export default function GalleryPage() {
           <div key={image.id} className="group rounded-lg shadow-lg bg-gray-800 flex flex-col overflow-hidden">
             <div onClick={() => setSelectedImage(image)} className="cursor-pointer overflow-hidden">
               <Image
-                // --- CORRECCIÓN APLICADA AQUÍ ---
-                // Usamos la función auxiliar para construir la ruta de forma segura
                 src={buildImageUrl(image.fileName)}
                 alt={image.description}
                 width={400}
@@ -189,7 +189,6 @@ export default function GalleryPage() {
         <div className="text-center py-20"><p className="text-gray-400">Tu galería está vacía.</p></div>
       )}
 
-      {/* El resto del código para el modal y el lightbox no necesita cambios */}
       {isModalOpen && (
          <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
           <div className="bg-gray-800 p-8 rounded-lg shadow-2xl w-full max-w-md relative">
@@ -235,7 +234,6 @@ export default function GalleryPage() {
               <X size={24} />
             </button>
             <Image
-              // --- CORRECCIÓN APLICADA TAMBIÉN EN EL LIGHTBOX ---
               src={buildImageUrl(selectedImage.fileName)}
               alt={selectedImage.description}
               width={1200}
