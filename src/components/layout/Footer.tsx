@@ -147,7 +147,20 @@ return (
                 </a>
 
                 {/* GitHub */}
-                
+                <a 
+                  href="https://github.com/kingdombarber" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="cursor-pointer hover:opacity-80 transition-opacity duration-300"
+                >
+                  <Image 
+                    src="/images/logogit.png"
+                    alt="GitHub Kingdom Barber"
+                    width={24}
+                    height={24}
+                    className="w-6 h-6"
+                  />
+                </a>
               </div>
             </div>
           </div>
