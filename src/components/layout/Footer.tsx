@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import React from 'react';
 
 // Interface para las sedes
@@ -113,9 +114,8 @@ return (
               <p className="text-blue-200">Síguenos en redes sociales</p>
               <div className="flex justify-center md:justify-end gap-4 mt-2">
                 {/* Iconos de redes sociales */}
-                <span className="cursor-pointer hover:text-yellow-400">📘</span>
-                <span className="cursor-pointer hover:text-yellow-400">📷</span>
-                <span className="cursor-pointer hover:text-yellow-400">🐦</span>
+                {/* WhatsApp */}
+                
               </div>
             </div>
           </div>
