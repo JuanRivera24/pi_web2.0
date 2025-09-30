@@ -48,6 +48,20 @@ export default function Footer() {
       horario: "Lun-Sab: 9:00 AM - 8:00 PM"
     }
   ];
+return (
+    <footer className="bg-blue-950 text-white">
+      {/* Sección del Mapa */}
+      <section id="mapa" className="content mapa scroll-mt-24">
+        <iframe
+          title="Sedes Kingdom Barber"
+          src="https://www.google.com/maps/d/embed?mid=1fE4auR4b1fRD0ut4VGMrG8i1-C4DpJ8&ehbc=2E312F"
+          width="100%"
+          height="250"
+          loading="lazy"
+          className="w-full border-0"
+        />
+      </section>
 
+      
   
 }
