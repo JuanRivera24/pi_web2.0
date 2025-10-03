@@ -1,18 +1,14 @@
 "use client";
 import { useEffect, useState } from "react";
 
-// Interfaz adaptada a la estructura de datos REAL de tu API
 interface CitaDesdeAPI {
   id: string;
   clienteId: string;
-  start: string;
-  totalCost: string;
+  fechaInicio: string;
+  totalCost: number;
   nombreSede: string;
   nombreCompletoBarbero: string;
-  serviciosDetalle: {
-    id: string;
-    nombre: string;
-  }[];
+  serviciosDetalle: string;
 }
 
 export default function BarberAgenda() {
@@ -21,9 +17,8 @@ export default function BarberAgenda() {
   const [error, setError] = useState<string | null>(null);
   const [toast, setToast] = useState<string | null>(null);
 
-  const API_URL = 'http://localhost:3001';
+  const API_URL = 'http://localhost:8080';
 
-  // Función para mostrar notificaciones breves
   const showToast = (message: string) => {
     setToast(message);
     setTimeout(() => setToast(null), 3000);
@@ -32,14 +27,13 @@ export default function BarberAgenda() {
   useEffect(() => {
     const fetchAllCitas = async () => {
       try {
-        // --- CORRECCIÓN #1: Apuntamos al endpoint correcto ---
-        const response = await fetch(`${API_URL}/nuevas_citas`);
+        const response = await fetch(`${API_URL}/citas-activas`);
         if (!response.ok) {
           throw new Error('Error al obtener las citas desde la API');
         }
         const allCitas: CitaDesdeAPI[] = await response.json();
-        // La API ya las envía ordenadas
-        setCitas(allCitas);
+        const sortedCitas = allCitas.sort((a, b) => new Date(a.fechaInicio).getTime() - new Date(b.fechaInicio).getTime());
+        setCitas(sortedCitas);
       } catch (err: any) {
         console.error("Error al cargar las citas:", err);
         setError("No se pudieron cargar las citas. Intenta de nuevo más tarde.");
@@ -55,15 +49,15 @@ export default function BarberAgenda() {
       return;
     }
     try {
-      // --- CORRECCIÓN #2: Apuntamos al endpoint correcto para borrar ---
-      const response = await fetch(`${API_URL}/nuevas_citas/${citaId}`, {
+      const response = await fetch(`${API_URL}/citas-activas/${citaId}`, {
         method: 'DELETE',
       });
-      if (!response.ok) {
-        const errorData = await response.json();
+      
+      if (!response.ok && response.status !== 204) {
+        const errorData = await response.json().catch(() => ({ message: 'No se pudo cancelar la cita.' }));
         throw new Error(errorData.message || 'No se pudo cancelar la cita.');
       }
-      // Actualizamos el estado para remover la cita de la vista
+
       setCitas(prevCitas => prevCitas.filter(cita => cita.id !== citaId));
       showToast("Cita cancelada exitosamente.");
     } catch (err: any) {
@@ -99,17 +93,28 @@ export default function BarberAgenda() {
       <div className="space-y-4">
         <h2 className="text-2xl font-bold text-gray-800 mb-4">Todas las Próximas Citas</h2>
         {citas.map((cita) => {
-          const fechaCita = new Date(cita.start);
-          const serviciosTexto = cita.serviciosDetalle?.map(s => s.nombre).join(', ') || 'No especificado';
+          const fechaCita = new Date(cita.fechaInicio);
+          
+          let serviciosTexto = 'No especificado';
+          try {
+            const detalles = JSON.parse(cita.serviciosDetalle);
+            if(Array.isArray(detalles)) {
+                serviciosTexto = detalles.join(', ');
+            }
+          } catch(e) { /* No hacer nada, se queda como 'No especificado' */ }
+          
           return (
             <div key={cita.id} className="bg-white p-4 rounded-lg border border-gray-200 shadow-sm transition hover:shadow-md">
               <div className="flex justify-between items-start">
                 <div>
-                  <h3 className="font-bold text-lg text-blue-600">Cita en {cita.nombreSede}</h3>
+                  {/* --- CORRECCIÓN --- */}
+                  <h3 className="font-bold text-lg text-blue-600">
+                    Cita en {cita.nombreSede || 'Sede no especificada'}
+                  </h3>
                   <p className="text-sm text-gray-500">ID Cliente: {cita.clienteId}</p>
                 </div>
                 <span className="text-sm font-medium bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
-                  ${parseFloat(cita.totalCost).toLocaleString('es-CO')}
+                  ${cita.totalCost.toLocaleString('es-CO')}
                 </span>
               </div>
               <div className="mt-3 border-t pt-3 text-gray-700 space-y-1">
