@@ -13,16 +13,17 @@ export default function ContactSection() {
     setError(null);
 
     const formData = new FormData(e.currentTarget);
+    
+    // El objeto 'data' ahora usa los nombres de campo que espera la API de Java
     const data = {
-      name: formData.get("name"),
+      nombre: formData.get("name"),
       email: formData.get("email"),
-      message: formData.get("message"),
+      mensaje: formData.get("message"), // Corregido de 'message' a 'mensaje'
     };
 
     try {
-      // --- MODIFICACIÓN CLAVE ---
-      // Apuntamos directamente a la URL de nuestra nueva API.
-      const response = await fetch('http://localhost:3001/contactanos', {
+      // La URL ahora apunta a la API de Java en el puerto 8080
+      const response = await fetch('http://localhost:8080/contactanos', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -46,8 +47,6 @@ export default function ContactSection() {
   };
 
   return (
-    // El resto de tu componente JSX permanece exactamente igual.
-    // No es necesario copiarlo de nuevo si no ha cambiado.
     <section id="contacto" className="relative isolate overflow-hidden bg-gray-50 py-16 md:py-20">
       <div className="mx-auto max-w-7xl px-6">
         <div className="grid items-center gap-10 lg:grid-cols-12">
