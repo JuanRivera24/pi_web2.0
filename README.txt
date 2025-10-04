@@ -29,14 +29,14 @@ Para que funcione correctamente, la **API de Java (pi_movil2)** debe estar ejecu
 **🧩 Paso 1: Instalar dependencias**
 
 Abre una terminal en la carpeta raíz del proyecto y ejecuta:
-```bash
+```
 npm install
 ```
 
 **🚀 Paso 2: Iniciar la aplicación**
 
 Una vez instaladas las dependencias, ejecuta:
-```bash
+```
 npm run dev
 ```
 
