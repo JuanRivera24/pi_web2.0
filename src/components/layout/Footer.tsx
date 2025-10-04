@@ -1,5 +1,7 @@
+'use client';
 import Image from 'next/image';
 import React from 'react';
+import ApiStatusDiagnostic from '@/components/diagnosis/ApiStatusDiagnostic';
 
 // Interface para las sedes
 interface Sede {
@@ -111,6 +113,10 @@ export default function Footer() {
             <div className="text-center">
               <p className="text-blue-200">📧 info@kingdombarber.com</p>
               <p className="text-blue-200">🌐 www.kingdombarber.com</p>
+              
+              {/* --- 2. Añadimos el componente de diagnóstico aquí --- */}
+              <ApiStatusDiagnostic />
+
             </div>
             <div className="text-center md:text-right">
               <p className="text-blue-200">Síguenos en redes sociales</p>
