@@ -17,7 +17,7 @@ export default function BarberAgenda() {
   const [error, setError] = useState<string | null>(null);
   const [toast, setToast] = useState<string | null>(null);
 
-  const API_URL = 'http://localhost:8080';
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
   const showToast = (message: string) => {
     setToast(message);

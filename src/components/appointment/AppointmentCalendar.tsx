@@ -74,7 +74,8 @@ export default function AppointmentCalendar() {
   const [selectedServicios, setSelectedServicios] = useState<string[]>([]);
   const [selectedHour, setSelectedHour] = useState<number>(10);
   
-  const API_URL = 'http://localhost:8080';
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
+
 
   useEffect(() => {
     async function fetchData() {
