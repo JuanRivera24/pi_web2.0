@@ -4,37 +4,37 @@ import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 
-// --- LISTA DE SERVICIOS RELEVANTES ACTUALIZADA ---
+// --- RUTAS DE IMAGEN CORREGIDAS ---
 const services = [
   { 
     id: 201, 
     title: "Corte Premium", 
     description: "Asesoría de estilo para un look impecable y de alta calidad.", 
-    image: "/images/premium.png" 
+    image: "/Images/premium.png" // Corregido
   },
   { 
     id: 204, 
     title: "Ritual Completo", 
     description: "La experiencia completa: un corte preciso y un arreglo de barba profesional.", 
-    image: "/images/completo.jpeg" 
+    image: "/Images/completo.jpeg" // Corregido
   },
   { 
     id: 202, 
     title: "Afeitado Clásico", 
     description: "Relájate con el ritual de toalla caliente, navaja y productos de primera.", 
-    image: "/images/afeitado.jpg" 
+    image: "/Images/afeitado.JPG" // Corregido
   },
   { 
     id: 209, 
     title: "Limpieza Facial", 
     description: "Revitaliza tu piel con una limpieza profunda y productos especializados.", 
-    image: "/images/limpiezap.jpg" 
+    image: "/Images/limpiezap.jpg" // Corregido
   },
   { 
     id: 215, 
     title: "Paquete Ejecutivo", 
     description: "El paquete definitivo: corte, barba y tratamiento facial para un look renovado.", 
-    image: "/images/paquete.jpg" 
+    image: "/Images/paquete.jpg" // Corregido
   },
 ];
 

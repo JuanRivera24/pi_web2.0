@@ -13,109 +13,110 @@ type Service = {
   options: Option[];
 };
 
+// --- RUTAS DE IMAGEN CORREGIDAS ---
 const servicios: Service[] = [
     {
       id: 201,
       title: "Corte Premium",
-      image: "/images/premium.png",
+      image: "/Images/premium.png", // Corregido: I mayúscula
       details: "Un servicio de Corte Premium con una duración aproximada de 45 minutos.",
       options: [{ name: "Corte Premium", price: "$25.000" }],
     },
     {
       id: 202,
       title: "Afeitado Clásico",
-      image: "/images/afeitado.jpg",
+      image: "/Images/afeitado.JPG", // Corregido: I mayúscula y extensión .JPG
       details: "Un servicio de Afeitado Clásico con una duración aproximada de 30 minutos.",
       options: [{ name: "Afeitado Clásico", price: "$18.000" }],
     },
     {
       id: 203,
       title: "Arreglo de Barba",
-      image: "/images/barba.jpg",
+      image: "/Images/barba.JPG", // Corregido: I mayúscula y extensión .JPG
       details: "Un servicio de Arreglo de Barba con una duración aproximada de 25 minutos.",
       options: [{ name: "Arreglo de Barba", price: "$15.000" }],
     },
     {
       id: 204,
       title: "Ritual Completo (Corte + Barba)",
-      image: "/images/completo.jpeg",
+      image: "/Images/completo.jpeg", // Corregido: I mayúscula y extensión .jpeg
       details: "Un servicio de Ritual Completo (Corte + Barba) con una duración aproximada de 70 minutos.",
       options: [{ name: "Ritual Completo", price: "$40.000" }],
     },
     {
       id: 205,
       title: "Corte Clásico",
-      image: "/images/corte-clasico.jpg",
+      image: "/Images/corte-clasico.jpg", // Corregido: I mayúscula
       details: "Un servicio de Corte Clásico con una duración aproximada de 40 minutos.",
       options: [{ name: "Corte Clásico", price: "$20.000" }],
     },
     {
       id: 206,
       title: "Corte Infantil",
-      image: "/images/infantil.jpg",
+      image: "/Images/infantil.jpg", // Corregido: I mayúscula
       details: "Un servicio de Corte Infantil con una duración aproximada de 30 minutos.",
       options: [{ name: "Corte Infantil", price: "$15.000" }],
     },
     {
       id: 207,
       title: "Perfilado de Cejas",
-      image: "/images/perfilado.jpeg",
+      image: "/Images/perfilado.JPEG", // Corregido: I mayúscula y extensión .JPEG
       details: "Un servicio de Perfilado de Cejas con una duración aproximada de 15 minutos.",
       options: [{ name: "Perfilado de Cejas", price: "$12.000" }],
     },
     {
       id: 208,
       title: "Limpieza Facial Express",
-      image: "/images/express.jpg",
+      image: "/Images/express.jpg", // Corregido: I mayúscula
       details: "Un servicio de Limpieza Facial Express con una duración aproximada de 25 minutos.",
       options: [{ name: "Limpieza Facial Express", price: "$22.000" }],
     },
     {
       id: 209,
       title: "Limpieza Facial Profunda",
-      image: "/images/limpiezap.jpg",
+      image: "/Images/limpiezap.jpg", // Corregido: I mayúscula
       details: "Un servicio de Limpieza Facial Profunda con una duración aproximada de 50 minutos.",
       options: [{ name: "Limpieza Facial Profunda", price: "$35.000" }],
     },
     {
       id: 210,
       title: "Coloración de Barba",
-      image: "/images/colorb.jpg",
+      image: "/Images/colorb.jpg", // Corregido: I mayúscula
       details: "Un servicio de Coloración de Barba con una duración aproximada de 30 minutos.",
       options: [{ name: "Coloración de Barba", price: "$18.000" }],
     },
     {
       id: 211,
       title: "Tinte Capilar",
-      image: "/images/color.jpg",
+      image: "/Images/color.JPG", // Corregido: I mayúscula y extensión .JPG
       details: "Un servicio de Tinte Capilar con una duración aproximada de 45 minutos.",
       options: [{ name: "Tinte Capilar", price: "$30.000" }],
     },
     {
       id: 212,
       title: "Masaje Capilar Relajante",
-      image: "/images/masajec.jpg",
+      image: "/Images/masajec.jpg", // Corregido: I mayúscula
       details: "Un servicio de Masaje Capilar Relajante con una duración aproximada de 20 minutos.",
       options: [{ name: "Masaje Capilar Relajante", price: "$20.000" }],
     },
     {
       id: 213,
       title: "Exfoliación Facial",
-      image: "/images/exfoliacion.jpg",
+      image: "/Images/exfoliacion.jpg", // Corregido: I mayúscula
       details: "Un servicio de Exfoliación Facial con una duración aproximada de 30 minutos.",
       options: [{ name: "Exfoliación Facial", price: "$28.000" }],
     },
     {
       id: 214,
       title: "Tratamiento Capilar Nutritivo",
-      image: "/images/tratamiento.jpg",
+      image: "/Images/tratamiento.jpg", // Corregido: I mayúscula
       details: "Un servicio de Tratamiento Capilar Nutritivo con una duración aproximada de 50 minutos.",
       options: [{ name: "Tratamiento Capilar Nutritivo", price: "$40.000" }],
     },
     {
       id: 215,
       title: "Paquete Ejecutivo (Corte + Barba + Facial)",
-      image: "/images/paquete.jpg",
+      image: "/Images/paquete.jpg", // Corregido: I mayúscula
       details: "Un servicio de Paquete Ejecutivo con una duración aproximada de 90 minutos.",
       options: [{ name: "Paquete Ejecutivo", price: "$60.000" }],
     },
