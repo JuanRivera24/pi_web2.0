@@ -7,11 +7,29 @@ import { es } from "date-fns/locale";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import { Listbox, Transition } from '@headlessui/react';
 
-// Interfaces actualizadas para coincidir con la API de Java (camelCase)
+// --- INICIO CORRECCIÓN: AÑADIMOS INTERFACES ESPECÍFICAS ---
 interface Sede { id: string; nombreSede: string; }
 interface Barbero { id: string; nombreBarbero: string; apellidoBarbero: string; sede: { id: string }; }
 interface Servicio { id: string; nombreServicio: string; precio: number; duracionMin: number; }
 type AppointmentEvent = { id: string; title: string; start: Date; end: Date; userId: string; sedeId: string; barberoId: string; servicioIds: string[]; };
+
+// Interfaz para los datos que vienen de la API de citas
+interface ApiCita {
+  id: string;
+  fechaInicio: string; // Es un string ISO
+  fechaFin: string; // Es un string ISO
+  clienteId: string;
+  sedeId: number;
+  barberId: number;
+  services: string; // Es un JSON string
+}
+
+// Interfaz para el parámetro de la función generateEventTitle
+interface CitaTitleInfo {
+  barberoId: number | string;
+  clienteId: string;
+}
+// --- FIN CORRECCIÓN ---
 
 const cn = (...c: (string | false | undefined)[]) => c.filter(Boolean).join(" ");
 const localizer = dateFnsLocalizer({ format, parse, startOfWeek: (date: Date) => dfStartOfWeek(date, { weekStartsOn: 1 }), getDay, locales: { es } });
@@ -29,7 +47,8 @@ const Toolbar = ({ label, onNavigate, onView, view }: ToolbarProps) => {
   );
 };
 
-const generateEventTitle = (cita: any, barberos: Barbero[], userId: string | undefined): string => {
+// --- CORRECCIÓN 1: Usamos la interfaz CitaTitleInfo en lugar de 'any' ---
+const generateEventTitle = (cita: CitaTitleInfo, barberos: Barbero[], userId: string | undefined): string => {
   const barberoId = cita.barberoId;
   const clienteId = cita.clienteId;
   const barbero = barberos.find(b => String(b.id) === String(barberoId));
@@ -75,13 +94,14 @@ export default function AppointmentCalendar() {
         const sedesData = await sedesRes.json();
         const barberosData = await barberosRes.json();
         const serviciosData = await serviciosRes.json();
-        const citasData = await citasRes.json();
+        const citasData: ApiCita[] = await citasRes.json(); // Tipamos la respuesta de la API
 
         setSedes(sedesData);
         setBarberos(barberosData);
         setServicios(serviciosData);
         
-        const citasFormateadas = citasData.map((cita: any) => ({
+        // --- CORRECCIÓN 2: Usamos la interfaz ApiCita en lugar de 'any' ---
+        const citasFormateadas = citasData.map((cita: ApiCita) => ({
           id: cita.id,
           start: new Date(cita.fechaInicio),
           end: new Date(cita.fechaFin),
@@ -167,7 +187,7 @@ export default function AppointmentCalendar() {
         throw new Error(errorData.message || 'Error del servidor'); 
       }
       
-      const savedResult = await response.json();
+      const savedResult: ApiCita = await response.json();
       
       const newEvent: AppointmentEvent = { 
         id: savedResult.id, 
@@ -188,9 +208,14 @@ export default function AppointmentCalendar() {
         showToast("Cita creada con éxito", "success");
       }
       setSelectedDate(null); setEditingEvent(null);
-    } catch (error: any) {
+    // --- CORRECCIÓN 3: Manejo de error seguro ---
+    } catch (error: unknown) {
       console.error("Error en handleSaveAppointment:", error);
-      showToast(error.message, "error");
+      if (error instanceof Error) {
+        showToast(error.message, "error");
+      } else {
+        showToast("Ocurrió un error inesperado.", "error");
+      }
     }
   };
 
@@ -207,9 +232,14 @@ export default function AppointmentCalendar() {
         const errorData = await response.json();
         throw new Error(errorData.error || 'Error al eliminar'); 
       }
-    } catch (error: any) {
+    // --- CORRECCIÓN 4: Manejo de error seguro ---
+    } catch (error: unknown) {
       console.error("Error en handleDeleteAppointment:", error);
-      showToast(error.message, "error");
+      if (error instanceof Error) {
+        showToast(error.message, "error");
+      } else {
+        showToast("Ocurrió un error inesperado al eliminar.", "error");
+      }
     }
   };
 
@@ -267,14 +297,35 @@ export default function AppointmentCalendar() {
               </div>
               <div>
                 <label className="block mb-2 font-medium text-gray-700">3. Elige los Servicios</label>
-                <div className="w-full border border-gray-300 rounded-lg p-3 max-h-48 overflow-y-auto space-y-2 bg-white">{servicios.length > 0 ? (servicios.map((servicio) => (<label key={servicio.id} className="flex items-center gap-3 p-2 rounded-md hover:bg-gray-50 cursor-pointer"><input type="checkbox" checked={selectedServicios.includes(servicio.id)} onChange={() => handleServicioChange(servicio.id)} disabled={!selectedBarbero} className="h-5 w-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500 disabled:opacity-50" /><span className="flex-1 text-gray-800">{servicio.nombreServicio}</span><span className="font-semibold text-gray-600">${servicio.precio.toLocaleString('es-CO')}</span></label>))) : (<p className="text-sm text-gray-500">No hay servicios.</p>)}</div>
-                {subtotal > 0 && (<div className="text-right mt-2 pr-2"><p className="text-md font-bold text-gray-800">Subtotal: <span className="text-blue-600">${subtotal.toLocaleString('es-CO')}</span></p></div>)}
+                {/* ***** ESTE ES EL DIV CORREGIDO ***** */}
+                <div className="w-full border border-gray-300 rounded-lg p-3 max-h-40 overflow-y-auto space-y-2 bg-white">
+                  {servicios.length > 0 ? (servicios.map((servicio) => (
+                    <label key={servicio.id} className="flex items-center gap-3 p-2 rounded-md hover:bg-gray-50 cursor-pointer">
+                      <input 
+                        type="checkbox" 
+                        checked={selectedServicios.includes(servicio.id)} 
+                        onChange={() => handleServicioChange(servicio.id)} 
+                        disabled={!selectedBarbero} 
+                        className="h-5 w-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500 disabled:opacity-50" 
+                      />
+                      <span className="flex-1 text-gray-800">{servicio.nombreServicio}</span>
+                      <span className="font-semibold text-gray-600">${servicio.precio.toLocaleString('es-CO')}</span>
+                    </label>
+                  ))) : (
+                    <p className="text-sm text-gray-500">No hay servicios.</p>
+                  )}
+                </div>
+                {subtotal > 0 && (
+                  <div className="text-right mt-2 pr-2">
+                    <p className="text-md font-bold text-gray-800">Subtotal: <span className="text-blue-600">${subtotal.toLocaleString('es-CO')}</span></p>
+                  </div>
+                )}
               </div>
               <div>
                 <label htmlFor="hora" className="block mb-2 font-medium text-gray-700">4. Selecciona la Hora</label>
                 <select id="hora" value={selectedHour} onChange={(e) => setSelectedHour(Number(e.target.value))} disabled={selectedServicios.length === 0} className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-300 disabled:bg-gray-100">
                   {hours.map((hour) => {
-                    const start = new Date(selectedDate); start.setHours(hour, 0, 0, 0);
+                    const start = new Date(selectedDate!); start.setHours(hour, 0, 0, 0);
                     const end = new Date(start.getTime() + totalDuration * 60000);
                     const taken = events.some(e => e.start < end && e.end > start && String(e.barberoId) === String(selectedBarbero) && (!editingEvent || String(e.id) !== String(editingEvent.id)));
                     return (<option key={hour} value={hour} disabled={taken} className="text-black">{hour}:00 {taken ? "(Ocupado)" : ""}</option>);

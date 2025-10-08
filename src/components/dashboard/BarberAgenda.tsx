@@ -34,9 +34,15 @@ export default function BarberAgenda() {
         const allCitas: CitaDesdeAPI[] = await response.json();
         const sortedCitas = allCitas.sort((a, b) => new Date(a.fechaInicio).getTime() - new Date(b.fechaInicio).getTime());
         setCitas(sortedCitas);
-      } catch (err: any) {
+    // --- INICIO CORRECCIÓN 1 ---
+      } catch (err: unknown) {
         console.error("Error al cargar las citas:", err);
-        setError("No se pudieron cargar las citas. Intenta de nuevo más tarde.");
+        if (err instanceof Error) {
+          setError(`No se pudieron cargar las citas: ${err.message}`);
+        } else {
+          setError("No se pudieron cargar las citas. Intenta de nuevo más tarde.");
+        }
+    // --- FIN CORRECCIÓN 1 ---
       } finally {
         setLoading(false);
       }
@@ -60,9 +66,15 @@ export default function BarberAgenda() {
 
       setCitas(prevCitas => prevCitas.filter(cita => cita.id !== citaId));
       showToast("Cita cancelada exitosamente.");
-    } catch (err: any) {
+    // --- INICIO CORRECCIÓN 2 ---
+    } catch (err: unknown) {
       console.error("Error al cancelar la cita:", err);
-      alert(`Error: ${err.message}`);
+      if (err instanceof Error) {
+        alert(`Error: ${err.message}`);
+      } else {
+        alert("Ocurrió un error inesperado al cancelar la cita.");
+      }
+    // --- FIN CORRECCIÓN 2 ---
     }
   };
 
@@ -107,7 +119,6 @@ export default function BarberAgenda() {
             <div key={cita.id} className="bg-white p-4 rounded-lg border border-gray-200 shadow-sm transition hover:shadow-md">
               <div className="flex justify-between items-start">
                 <div>
-                  {/* --- CORRECCIÓN --- */}
                   <h3 className="font-bold text-lg text-blue-600">
                     Cita en {cita.nombreSede || 'Sede no especificada'}
                   </h3>

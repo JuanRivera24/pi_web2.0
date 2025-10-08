@@ -39,8 +39,14 @@ export default function ContactSection() {
       setStatus("¡Gracias! Hemos recibido tu mensaje y te responderemos pronto.");
       (e.target as HTMLFormElement).reset();
 
-    } catch (err: any) {
-      setError(err.message);
+    // --- INICIO DE LA CORRECCIÓN ---
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError("Ocurrió un error inesperado.");
+      }
+    // --- FIN DE LA CORRECCIÓN ---
     } finally {
       setIsSubmitting(false);
     }

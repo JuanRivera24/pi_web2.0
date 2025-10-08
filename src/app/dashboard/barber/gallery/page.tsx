@@ -73,8 +73,14 @@ export default function GalleryPage() {
       closeModal();
       await fetchImages();
 
-    } catch (error: any) {
-      setUploadError(error.message);
+    // --- INICIO DE LA CORRECCIÓN ---
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        setUploadError(error.message);
+      } else {
+        setUploadError("Ocurrió un error desconocido.");
+      }
+    // --- FIN DE LA CORRECCIÓN ---
     } finally {
       setIsUploading(false);
     }
