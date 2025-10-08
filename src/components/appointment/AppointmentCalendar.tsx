@@ -68,7 +68,7 @@ export default function AppointmentCalendar() {
   const [sedes, setSedes] = useState<Sede[]>([]);
   const [barberos, setBarberos] = useState<Barbero[]>([]);
   const [servicios, setServicios] = useState<Servicio[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  // const [isLoading, setIsLoading] = useState(true); // LÍNEA ELIMINADA
   const [selectedSede, setSelectedSede] = useState<string>("");
   const [selectedBarbero, setSelectedBarbero] = useState<string>("");
   const [selectedServicios, setSelectedServicios] = useState<string[]>([]);
@@ -79,7 +79,7 @@ export default function AppointmentCalendar() {
   useEffect(() => {
     async function fetchData() {
       if (!user) return;
-      setIsLoading(true);
+      // setIsLoading(true); // LÍNEA ELIMINADA
       try {
         const [sedesRes, barberosRes, serviciosRes, citasRes] = await Promise.all([
           fetch(`${API_URL}/sedes`),
@@ -94,13 +94,12 @@ export default function AppointmentCalendar() {
         const sedesData = await sedesRes.json();
         const barberosData = await barberosRes.json();
         const serviciosData = await serviciosRes.json();
-        const citasData: ApiCita[] = await citasRes.json(); // Tipamos la respuesta de la API
+        const citasData: ApiCita[] = await citasRes.json();
 
         setSedes(sedesData);
         setBarberos(barberosData);
         setServicios(serviciosData);
         
-        // --- CORRECCIÓN 2: Usamos la interfaz ApiCita en lugar de 'any' ---
         const citasFormateadas = citasData.map((cita: ApiCita) => ({
           id: cita.id,
           start: new Date(cita.fechaInicio),
@@ -115,9 +114,8 @@ export default function AppointmentCalendar() {
       } catch (error) {
         console.error("Error cargando datos desde la API:", error);
         showToast("Error al conectar con el servidor", "error");
-      } finally {
-        setIsLoading(false);
-      }
+      } 
+      // LÍNEA 'finally' ELIMINADA PORQUE YA NO ES NECESARIA
     }
     fetchData();
   }, [user]);
@@ -208,7 +206,6 @@ export default function AppointmentCalendar() {
         showToast("Cita creada con éxito", "success");
       }
       setSelectedDate(null); setEditingEvent(null);
-    // --- CORRECCIÓN 3: Manejo de error seguro ---
     } catch (error: unknown) {
       console.error("Error en handleSaveAppointment:", error);
       if (error instanceof Error) {
@@ -232,7 +229,6 @@ export default function AppointmentCalendar() {
         const errorData = await response.json();
         throw new Error(errorData.error || 'Error al eliminar'); 
       }
-    // --- CORRECCIÓN 4: Manejo de error seguro ---
     } catch (error: unknown) {
       console.error("Error en handleDeleteAppointment:", error);
       if (error instanceof Error) {
@@ -297,7 +293,6 @@ export default function AppointmentCalendar() {
               </div>
               <div>
                 <label className="block mb-2 font-medium text-gray-700">3. Elige los Servicios</label>
-                {/* ***** ESTE ES EL DIV CORREGIDO ***** */}
                 <div className="w-full border border-gray-300 rounded-lg p-3 max-h-40 overflow-y-auto space-y-2 bg-white">
                   {servicios.length > 0 ? (servicios.map((servicio) => (
                     <label key={servicio.id} className="flex items-center gap-3 p-2 rounded-md hover:bg-gray-50 cursor-pointer">

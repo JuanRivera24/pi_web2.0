@@ -1,8 +1,7 @@
-// En: src/components/layout/BarberNavbar.tsx
-
 "use client";
 
 import Link from "next/link";
+import Image from "next/image"; // 1. Se importa el componente Image
 import { UserButton, useUser } from "@clerk/nextjs";
 import { Link as ScrollLink } from "react-scroll";
 
@@ -12,17 +11,20 @@ export default function BarberNavbar() {
   return (
     <nav className="fixed top-0 left-0 w-full bg-blue-900 shadow-md px-6 py-4 flex justify-between items-center z-50">
       <Link href="/dashboard/barber">
-        <img src="/Images/Logo.png" alt="Logo de la página" className="h-10 w-auto" />
+        {/* 2. Se reemplaza <img> por <Image> con width y height */}
+        <Image 
+          src="/Images/Logo.png" 
+          alt="Logo de la página" 
+          width={150} 
+          height={40}
+          className="h-10 w-auto" 
+        />
       </Link>
       
       <div className="flex items-center space-x-6">
         <ul className="flex space-x-6 text-white/90 font-medium items-center">
           
-          {/* --- ENLACE AL DASHBOARD GENERAL (CORREGIDO) --- */}
           <li>
-            {/* 
-              El componente <Link> ahora pasa automáticamente las propiedades a la etiqueta <a> hija.
-            */}
             <Link 
               href="http://localhost:8501/" 
               target="_blank" 
@@ -33,17 +35,15 @@ export default function BarberNavbar() {
             </Link>
           </li>
           
-          {/* --- ENLACE A LA GALERÍA --- */}
           <li>
             <Link href="/dashboard/barber/gallery" className="hover:text-white transition-colors cursor-pointer">
               Galería
             </Link>
           </li>
-          {/* --- FIN DEL ENLACE A LA GALERÍA --- */}
 
           <li>
             <ScrollLink
-              to="contacto" // Asumiendo que 'contacto' es un ID en tu página principal
+              to="contacto"
               smooth
               duration={600}
               offset={-50}

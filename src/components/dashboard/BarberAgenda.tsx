@@ -34,7 +34,6 @@ export default function BarberAgenda() {
         const allCitas: CitaDesdeAPI[] = await response.json();
         const sortedCitas = allCitas.sort((a, b) => new Date(a.fechaInicio).getTime() - new Date(b.fechaInicio).getTime());
         setCitas(sortedCitas);
-    // --- INICIO CORRECCIÓN 1 ---
       } catch (err: unknown) {
         console.error("Error al cargar las citas:", err);
         if (err instanceof Error) {
@@ -42,7 +41,6 @@ export default function BarberAgenda() {
         } else {
           setError("No se pudieron cargar las citas. Intenta de nuevo más tarde.");
         }
-    // --- FIN CORRECCIÓN 1 ---
       } finally {
         setLoading(false);
       }
@@ -66,7 +64,6 @@ export default function BarberAgenda() {
 
       setCitas(prevCitas => prevCitas.filter(cita => cita.id !== citaId));
       showToast("Cita cancelada exitosamente.");
-    // --- INICIO CORRECCIÓN 2 ---
     } catch (err: unknown) {
       console.error("Error al cancelar la cita:", err);
       if (err instanceof Error) {
@@ -74,7 +71,6 @@ export default function BarberAgenda() {
       } else {
         alert("Ocurrió un error inesperado al cancelar la cita.");
       }
-    // --- FIN CORRECCIÓN 2 ---
     }
   };
 
@@ -113,7 +109,11 @@ export default function BarberAgenda() {
             if(Array.isArray(detalles)) {
                 serviciosTexto = detalles.join(', ');
             }
-          } catch(e) { /* No hacer nada, se queda como 'No especificado' */ }
+          // --- INICIO CORRECCIÓN ---
+          } catch { // Se elimina la variable 'e' que no se usaba
+            /* No hacer nada, se queda como 'No especificado' */ 
+          }
+          // --- FIN CORRECCIÓN ---
           
           return (
             <div key={cita.id} className="bg-white p-4 rounded-lg border border-gray-200 shadow-sm transition hover:shadow-md">

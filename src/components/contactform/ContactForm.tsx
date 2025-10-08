@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import Image from "next/image"; // 1. IMPORTAMOS el componente Image
 
 export default function ContactSection() {
   const [status, setStatus] = useState<string | null>(null);
@@ -14,15 +15,13 @@ export default function ContactSection() {
 
     const formData = new FormData(e.currentTarget);
     
-    // El objeto 'data' ahora usa los nombres de campo que espera la API de Java
     const data = {
       nombre: formData.get("name"),
       email: formData.get("email"),
-      mensaje: formData.get("message"), // Corregido de 'message' a 'mensaje'
+      mensaje: formData.get("message"),
     };
 
     try {
-      // La URL ahora apunta a la API de Java en el puerto 8080
       const response = await fetch('http://localhost:8080/contactanos', {
         method: 'POST',
         headers: {
@@ -39,14 +38,12 @@ export default function ContactSection() {
       setStatus("¡Gracias! Hemos recibido tu mensaje y te responderemos pronto.");
       (e.target as HTMLFormElement).reset();
 
-    // --- INICIO DE LA CORRECCIÓN ---
     } catch (err: unknown) {
       if (err instanceof Error) {
         setError(err.message);
       } else {
         setError("Ocurrió un error inesperado.");
       }
-    // --- FIN DE LA CORRECCIÓN ---
     } finally {
       setIsSubmitting(false);
     }
@@ -58,7 +55,14 @@ export default function ContactSection() {
         <div className="grid items-center gap-10 lg:grid-cols-12">
           <div className="lg:col-span-6">
             <div className="relative">
-              <img src="/Images/contactanos.jpg" alt="Contacto" className="mx-auto aspect-[4/3] w-full max-w-2xl rounded-3xl object-cover shadow-2xl ring-1 ring-gray-200" loading="lazy" decoding="async" />
+              {/* 2. REEMPLAZAMOS <img> por <Image> y añadimos width y height */}
+              <Image 
+                src="/Images/contactanos.jpg" 
+                alt="Contacto"
+                width={800}
+                height={600}
+                className="mx-auto aspect-[4/3] w-full max-w-2xl rounded-3xl object-cover shadow-2xl ring-1 ring-gray-200" 
+              />
               <div className="pointer-events-none absolute inset-0 rounded-3xl ring-1 ring-inset ring-white/40"></div>
             </div>
           </div>

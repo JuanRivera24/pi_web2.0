@@ -1,32 +1,39 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image"; // 1. Se importa el componente Image
 import { FC, useState, useEffect, Fragment } from "react";
 import { SignedIn, SignedOut, UserButton, useUser } from "@clerk/nextjs";
 import { Menu, Transition } from "@headlessui/react";
 import { Link as ScrollLink } from "react-scroll";
 
-// Importamos TODOS los formularios que usaremos en los modales
 import LoginForm from "@/components/auth/LoginForm";
-import BarberLoginForm from "@/components/auth/BarberLoginForm"; // <-- El nuevo
+import BarberLoginForm from "@/components/auth/BarberLoginForm";
 
 const Navbar: FC = () => {
-  // Un estado más descriptivo para saber qué modal abrir
   const [modalView, setModalView] = useState<"client-login" | "client-register" | "barber-login" | null>(null);
   const { isSignedIn } = useUser();
 
   useEffect(() => {
     if (isSignedIn) {
-      setModalView(null); // Cierra cualquier modal si el usuario ya inició sesión
+      setModalView(null);
     }
   }, [isSignedIn]);
 
   return (
     <nav className="fixed top-0 left-0 w-full bg-blue-900 shadow-md px-6 py-4 flex justify-between items-center z-50">
-      <Link href="/"><img src="/Images/Logo.png" alt="Logo de la página" className="h-10 w-auto" /></Link>
+      <Link href="/">
+        {/* 2. Se reemplaza <img> por <Image> con width y height */}
+        <Image 
+          src="/Images/Logo.png" 
+          alt="Logo de la página" 
+          width={150} 
+          height={40}
+          className="w-auto h-10"
+        />
+      </Link>
 
       <ul className="flex space-x-6 text-white/90 font-medium items-center">
-        {/* ... tus links de navegación ... */}
         <li><Link href="/" className="hover:text-white transition-colors">Nosotros</Link></li>
         <li><Link href="/services" className="hover:text-white transition-colors">Servicios</Link></li>
         <li><Link href="/#calendario" className="hover:text-white transition-colors">Citas</Link></li>
@@ -50,7 +57,6 @@ const Navbar: FC = () => {
                   </Menu.Item>
                   <Menu.Item>
                     {({ active }) => (
-                      // CAMBIO IMPORTANTE: Ahora abre el modal del barbero
                       <button onClick={() => setModalView("barber-login")} className={`${active ? "bg-gray-100" : ""} text-gray-700 block w-full text-left px-4 py-2 text-sm`}>
                         Soy Barbero
                       </button>
@@ -74,7 +80,6 @@ const Navbar: FC = () => {
             <div className="relative bg-white rounded-lg shadow-lg">
               <button onClick={() => setModalView(null)} className="absolute top-2 right-2 text-gray-500 hover:text-black text-2xl">✕</button>
 
-              {/* Muestra el formulario correcto según el estado */}
               {modalView === "client-login" && (
                 <div className="p-8">
                   <LoginForm />
