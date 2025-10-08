@@ -53,7 +53,6 @@ export default function Footer() {
   ];
 
   return (
-    // El contenedor principal del footer mantiene el fondo azul oscuro por defecto
     <footer className="bg-blue-950 text-white">
       {/* Sección del Mapa */}
       <section id="mapa" className="content mapa scroll-mt-24">
@@ -114,7 +113,6 @@ export default function Footer() {
               <p className="text-blue-200">📧 info@kingdombarber.com</p>
               <p className="text-blue-200">🌐 www.kingdombarber.com</p>
               
-              {/* --- 2. Añadimos el componente de diagnóstico aquí --- */}
               <ApiStatusDiagnostic />
 
             </div>
@@ -141,8 +139,9 @@ export default function Footer() {
                   rel="noopener noreferrer"
                   className="cursor-pointer hover:opacity-80 transition-opacity duration-300"
                 >
+                  {/* --- RUTA CORREGIDA --- */}
                   <Image 
-                    src="/images/logoigg.png"
+                    src="/Images/logoigg.png"
                     alt="Instagram Kingdom Barber"
                     width={24}
                     height={24}
@@ -155,8 +154,9 @@ export default function Footer() {
                   rel="noopener noreferrer"
                   className="cursor-pointer hover:opacity-80 transition-opacity duration-300"
                 >
+                  {/* --- RUTA CORREGIDA --- */}
                   <Image 
-                    src="/images/logogit.png"
+                    src="/Images/logogit.png"
                     alt="GitHub Kingdom Barber"
                     width={24}
                     height={24}
