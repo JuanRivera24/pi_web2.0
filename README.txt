@@ -1,4 +1,3 @@
-NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY="pk_test_cG9ldGljLWdvcGhlci04LmNsZXJrLmFjY291bnRzLmRldiQ"
 ======================================================================
              KINGDOM BARBER - WEB CLIENTE (PI_WEB2.0)
 ======================================================================
