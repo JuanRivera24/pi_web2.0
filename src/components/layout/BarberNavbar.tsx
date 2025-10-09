@@ -26,7 +26,7 @@ export default function BarberNavbar() {
           
           <li>
             <Link 
-              href="http://localhost:8501/" 
+              href="https://kingdombarberdashboard.streamlit.app" 
               target="_blank" 
               rel="noopener noreferrer" 
               className="hover:text-white transition-colors cursor-pointer"
