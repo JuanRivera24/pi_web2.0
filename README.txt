@@ -1,157 +1,178 @@
 ======================================================================
-             KINGDOM BARBER - WEB CLIENTE (PI_WEB2.0)
+             🌐 KINGDOM BARBER - PLATAFORMA WEB (PI_WEB2)
 ======================================================================
 
-📘 **Documentación:** Web 2 - Kingdom Barber  
-📆 **Fecha:** Octubre, 2025  
-👥 **Autores:** Juan Rivera, Andrés Vallejo, Alejandro Urrego  
+📘 Documentación: Web 2 - Kingdom Barber  
+📆 Fecha: Octubre, 2025  
+👥 Autores: Juan Rivera, Andrés Vallejo, Alejandro Urrego  
 
 ======================================================================
-              🧭 MANUAL DE USUARIO Y GUÍA DE EJECUCIÓN
+                        📖 DESCRIPCIÓN GENERAL
 ======================================================================
 
-### -- 1. REQUISITOS PREVIOS --
+Este repositorio contiene el código fuente del **front-end principal**
+para clientes y personal de **Kingdom Barber**.  
 
-Antes de comenzar, asegúrate de tener instalado lo siguiente en tu sistema:
+Es una aplicación moderna desarrollada con **Next.js (React + TypeScript)**,
+diseñada para ofrecer una experiencia fluida, responsiva y optimizada.
 
-- 🟢 **Node.js** (versión 18.x o superior)  
-- ⚙️ **npm** (gestor de paquetes)
+La aplicación actúa como el **cliente visual del ecosistema**, consumiendo
+toda la información (citas, barberos, servicios, galería, contacto, etc.)
+desde la API central `pi_movil2`, garantizando sincronización y rendimiento.
 
-⚠️ **Importante:**  
+======================================================================
+                      🚀 INFORMACIÓN DE DESPLIEGUE
+======================================================================
+
+🌐 Plataforma: Vercel (https://vercel.com/)  
+🔗 URL Pública: https://pi-web2-six.vercel.app  
+🧩 API Consumida: https://pi-movil2-0.onrender.com  
+📦 Estado: Activo y en Producción  
+
+======================================================================
+                  🧭 GUÍA DE USUARIO Y EJECUCIÓN LOCAL
+======================================================================
+
+1️⃣ REQUISITOS PREVIOS  
+----------------------
+- 🟢 Node.js v18 o superior  
+- ⚙️ npm (gestor de paquetes)  
+
+⚠️ Nota:  
 Esta aplicación es **solo el front-end**.  
-Para que funcione correctamente, la **API de Java (pi_movil2)** debe estar ejecutándose en:  
-👉 `http://localhost:8080`
+Debe conectarse correctamente con la API de Java (`pi_movil2`)
+para funcionar en modo de desarrollo.
 
----
+2️⃣ INSTALACIÓN Y EJECUCIÓN  
+----------------------------
+git clone https://github.com/JuanRivera24/pi_web2.git  
+cd pi_web2  
+npm install  
+npm run dev  
 
-### -- 2. INSTALACIÓN Y EJECUCIÓN --
-
-**🧩 Paso 1: Instalar dependencias**
-
-Abre una terminal en la carpeta raíz del proyecto y ejecuta:
-```
-npm install
-```
-
-**🚀 Paso 2: Iniciar la aplicación**
-
-Una vez instaladas las dependencias, ejecuta:
-```
-npm run dev
-```
-
-La aplicación estará disponible en tu navegador en:  
-👉 `http://localhost:3000`
+La aplicación estará disponible en:  
+👉 http://localhost:3000  
 
 ======================================================================
-                   💈 1. RESUMEN DEL PROYECTO
+                         💈 RESUMEN DEL PROYECTO
 ======================================================================
 
-**Kingdom Barber (PI_WEB2.0)** es la plataforma web orientada al **cliente y personal de la barbería**.  
-Desarrollada con **Next.js (React + TypeScript)**, ofrece una experiencia fluida, moderna y responsiva.
+**PI_WEB2** es la interfaz visual de Kingdom Barber, dirigida tanto a
+clientes como al personal.  
 
-Este proyecto es un **front-end puro**, sin lógica de negocio ni conexión directa a la base de datos.  
-Toda la información (citas, usuarios, servicios, imágenes, etc.) se comunica exclusivamente con la **API Central de Java + Spring Boot**, que actúa como la **única fuente de verdad**.
+Desarrollada con **Next.js**, utiliza **React + Tailwind CSS** para ofrecer
+una experiencia moderna, rápida y adaptable a cualquier dispositivo.
 
-======================================================================
-                 🎯 2. OBJETIVOS DEL PROYECTO
-======================================================================
+Toda la lógica de negocio reside en la API central (Java + Spring Boot),
+por lo que este front-end se encarga únicamente de la **presentación,
+interacción y consumo de datos** mediante peticiones HTTP (fetch/axios).
 
-### 🎯 Objetivo Principal
-Proveer una **experiencia de usuario moderna, rápida y eficiente** para clientes y barberos, consumiendo los servicios REST de la API centralizada.
-
-### 🔹 Objetivos Específicos
-- 💆 **Experiencia de Cliente Fluida:** Sistema de agendamiento intuitivo y en tiempo real con calendario interactivo.  
-- 💇 **Presentación de la Marca:** Mostrar servicios, galería de trabajos e información de sedes de forma visual.  
-- 🧔 **Herramienta del Barbero:** Panel sencillo para que el barbero vea su agenda de citas.  
-- 🔗 **Desacoplamiento Total:** Cliente independiente del back-end, comunicación solo vía HTTP.  
-- 📱 **Diseño Responsivo:** Adaptado a dispositivos móviles, tablets y escritorio.
+Desplegada globalmente en **Vercel**, garantiza rendimiento, seguridad
+y escalabilidad en el ecosistema Kingdom Barber.
 
 ======================================================================
-           🏗️ 3. ARQUITECTURA Y ESTRUCTURA DE CARPETAS
+                        🎯 OBJETIVOS DEL PROYECTO
 ======================================================================
 
-El proyecto usa la arquitectura **App Router** de Next.js, que organiza la app por rutas y componentes reutilizables.
+🎯 OBJETIVO PRINCIPAL  
+Brindar una experiencia de usuario moderna y eficiente, conectando
+a clientes y barberos con las funcionalidades centrales de la API.
 
-```
-pi_web2.0/
-├── 📂 app/                  # Rutas principales y páginas del proyecto
-│   ├── 📂 dashboard/
-│   │   └── 📂 barber/
-│   │       └── 📜 page.tsx        # Agenda del barbero
-│   ├── 📂 gallery/
-│   │   └── 📜 page.tsx           # Galería de imágenes
-│   ├── 📂 services/
-│   │   └── 📜 page.tsx           # Página de servicios
-│   ├── 📜 page.tsx               # Página principal (Home)
-│   ├── 📜 layout.tsx             # Layout base
-│   └── 📜 globals.css            # Estilos globales
+🧩 OBJETIVOS ESPECÍFICOS  
+- 💆 Experiencia fluida para clientes al agendar citas en tiempo real.  
+- 💇 Mostrar servicios, galería e información de sedes de forma atractiva.  
+- 🧔 Proveer al barbero un panel protegido para gestionar su agenda.  
+- 🔗 Desacoplar completamente la interfaz del backend central.  
+- 📱 Mantener un diseño responsivo y estético en todos los dispositivos.  
+
+======================================================================
+                 🏗️ ARQUITECTURA Y ESTRUCTURA DE CARPETAS
+======================================================================
+
+El proyecto implementa la **App Router Architecture** de Next.js,
+organizando rutas, vistas y componentes de forma modular y escalable.
+
+📂 pi_web2/
 │
-├── 📂 components/           # Componentes reutilizables
-│   ├── 📂 appointment/      # Calendario y modal de cita
-│   ├── 📂 auth/             # Autenticación (login/register)
-│   ├── 📂 contactform/      # Formulario de contacto
-│   ├── 📂 dashboard/        # Componentes del panel de barbero
-│   ├── 📂 diagnosis/        # Diagnóstico de estado API
-│   ├── 📂 layout/           # Navbar, Footer, etc.
-│   └── 📂 services/         # Componentes de servicios
+├── 📂 app/                     → Rutas y vistas principales
+│   ├── dashboard/              → Panel interno del personal
+│   │   ├── barber/             → Vista de agenda del barbero
+│   │   │   └── page.tsx
+│   │   └── gallery/            → Panel de galería
+│   │       └── page.tsx
+│   ├── page.tsx                → Página principal (Home)
+│   ├── services/page.tsx       → Listado de servicios
+│   ├── layout.tsx              → Layout global de la app
+│   └── globals.css             → Estilos globales (Tailwind)
 │
-├── 📂 public/               # Recursos estáticos (logos, imágenes)
+├── 📂 components/              → Componentes reutilizables
+│   ├── appointment/            → Módulos de cita y calendario
+│   ├── auth/                   → Login, registro y perfil
+│   └── ...                     → Navbar, Footer, Modals, etc.
 │
-├── 📜 middleware.ts         # Gestión de rutas protegidas
-├── 📜 next.config.ts        # Configuración de Next.js
-└── 📜 tailwind.config.js    # Personalización de Tailwind CSS
-```
+├── 📂 public/                  → Archivos estáticos (logos, imágenes)
+│
+├── 📜 middleware.ts            → Protección de rutas (auth Clerk)
+└── 📜 next.config.ts           → Configuración del proyecto  
 
 ======================================================================
-                🧩 4. STACK TECNOLÓGICO UTILIZADO
+                   🧩 STACK TECNOLÓGICO UTILIZADO
 ======================================================================
 
-| Tecnología | Descripción |
-|-------------|-------------|
-| ⚛️ **Next.js 13+** | Framework principal (App Router) |
-| 💡 **React 18+** | Librería base de UI |
-| 🟦 **TypeScript** | Tipado estático y robustez |
-| 🎨 **Tailwind CSS** | Estilos y diseño responsivo |
-| 🔐 **Clerk** | Autenticación y manejo de sesiones |
-| 🌐 **Fetch API** | Peticiones HTTP asíncronas |
-| 📅 **react-big-calendar** | Calendario interactivo para citas |
-| 📂 **@headlessui/react** | Listas y menús accesibles |
-| 🧠 **lucide-react** | Iconografía moderna |
-| 🔗 **API REST Java (Spring Boot)** | Fuente de datos principal — `http://localhost:8080` |
+⚛️ Next.js 13+ ............ Framework principal de React (App Router)  
+💡 React 18+ .............. Librería base de componentes  
+🟦 TypeScript ............. Tipado estático y mayor mantenibilidad  
+🎨 Tailwind CSS ........... Framework CSS utility-first  
+🔐 Clerk .................. Gestión de usuarios y sesiones  
+🌐 Fetch API .............. Comunicación HTTP con la API Java  
+📅 react-big-calendar ..... Calendario interactivo de agendamiento  
+📂 @headlessui/react ...... Modales y menús accesibles sin estilos  
+✨ lucide-react ........... Iconos SVG ligeros y personalizables  
 
 ======================================================================
-             🔄 5. FLUJO DE DATOS: RESERVA DE UNA CITA
+                  🔄 FLUJO DE DATOS - RESERVA DE CITA
 ======================================================================
 
-**1️⃣ Cliente (React):**  
-El usuario autenticado selecciona sede, barbero, servicio y hora en el calendario.
+1️⃣ CLIENTE (React)  
+El usuario autenticado con Clerk selecciona sede, barbero y servicio
+en el calendario interactivo.
 
-**2️⃣ Front-End (Next.js):**  
-El componente `AppointmentCalendar.tsx` empaqueta los datos en un objeto JSON compatible con la API de Java (ej: `fechaInicio`, `barberId`, `serviceId`).
+2️⃣ FRONT-END (Next.js)  
+El componente `AppointmentCalendar.tsx` crea un objeto JSON con los datos
+y lo envía mediante una petición `POST` a la API.
 
-**3️⃣ Petición Fetch:**  
-Se realiza un `POST` al endpoint:  
-👉 `http://localhost:8080/citas-activas`
+3️⃣ PETICIÓN HTTP  
+Se envía la solicitud a:  
+👉 https://pi-movil2-0.onrender.com/citas-activas  
 
-**4️⃣ Back-End (Java + Spring Boot):**  
-El `AgendamientoController` recibe la petición, crea un objeto `NuevaCita`, añade información adicional y guarda los datos en la base de datos H2 mediante `NuevaCitaRepository`.
+4️⃣ BACK-END (Java + Spring Boot)  
+El `AgendamientoController` recibe, valida y guarda la cita en PostgreSQL.
 
-**5️⃣ Respuesta:**  
-La API devuelve la cita completa en formato JSON con estado **200 OK**.
-
-**6️⃣ Actualización UI:**  
-React actualiza el estado interno con la nueva cita → el calendario se re-renderiza → se muestra la nueva cita y una notificación de éxito.
-
-======================================================================
-                     🧱 ESTADO DEL PROYECTO
-======================================================================
-
-✅ Integración completa con la API de Java (Spring Boot)  
-✅ Autenticación funcional con Clerk  
-✅ Diseño modular y 100% responsivo  
-🚧 Próximos pasos: optimizar rendimiento e implementar notificaciones visuales
+5️⃣ RESPUESTA Y ACTUALIZACIÓN DE UI  
+La API devuelve el JSON de la cita creada.  
+El front-end actualiza su estado y muestra la nueva cita en pantalla.  
 
 ======================================================================
-                     ✨ FIN DEL DOCUMENTO
+                  🧱 DESPLIEGUE Y AUTOMATIZACIÓN (VERCEL)
+======================================================================
+
+🚀 Plataforma: **Vercel** (optimizada para Next.js)  
+🔄 CI/CD: Despliegue automático al hacer push a la rama `main`.  
+🧹 Linter: ESLint ejecuta validaciones y corrige importaciones no usadas.  
+🔐 Variables de Entorno: Claves de Clerk y API gestionadas en Vercel.  
+📦 Build automática: Genera versiones optimizadas de producción.  
+
+======================================================================
+                     👥 AUTORES Y CONTRIBUIDORES
+======================================================================
+
+👤 Juan Manuel Rivera  
+👤 Andrés Vallejo  
+👤 Alejandro Urrego  
+
+Repositorio oficial:  
+🔗 https://github.com/JuanRivera24/pi_web2.git  
+
+======================================================================
+                         🧩 FIN DEL DOCUMENTO
 ======================================================================
