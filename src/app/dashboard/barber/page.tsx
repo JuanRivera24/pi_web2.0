@@ -50,7 +50,7 @@ export default function BarberHomePage() {
           </p>
           {/* 2. Usamos Link para la navegación externa, con target="_blank" para abrir en una nueva pestaña */}
           <Link
-            href="http://localhost:8501/"
+            href="https://kingdombarberdashboard.streamlit.app/"
             target="_blank"
             rel="noopener noreferrer"
             className="inline-block bg-blue-600 text-white font-semibold py-3 px-8 rounded-lg shadow-md hover:bg-blue-700 transition-transform duration-300 hover:scale-105"
