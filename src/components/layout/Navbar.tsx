@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
+import Image from "next/image"; // 1. Se importa el componente Image
 import { FC, useState, useEffect, Fragment } from "react";
 import { SignedIn, SignedOut, UserButton, useUser } from "@clerk/nextjs";
 import { Menu, Transition } from "@headlessui/react";
@@ -23,6 +23,7 @@ const Navbar: FC = () => {
   return (
     <nav className="fixed top-0 left-0 w-full bg-blue-900 shadow-md px-6 py-4 flex justify-between items-center z-50">
       <Link href="/">
+        {/* 2. Se reemplaza <img> por <Image> con width y height */}
         <Image 
           src="/Images/Logo.png" 
           alt="Logo de la página" 
@@ -32,8 +33,7 @@ const Navbar: FC = () => {
         />
       </Link>
 
-      {/* AQUÍ ESTÁ LA CORRECCIÓN. Se añade 'suppressHydrationWarning' a la lista <ul> */}
-      <ul className="flex space-x-6 text-white/90 font-medium items-center" suppressHydrationWarning>
+      <ul className="flex space-x-6 text-white/90 font-medium items-center">
         <li><Link href="/" className="hover:text-white transition-colors">Nosotros</Link></li>
         <li><Link href="/services" className="hover:text-white transition-colors">Servicios</Link></li>
         <li><Link href="/#calendario" className="hover:text-white transition-colors">Citas</Link></li>
