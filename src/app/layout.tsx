@@ -1,9 +1,9 @@
-
 import type { Metadata } from "next";
 import { ClerkProvider } from "@clerk/nextjs";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
+// Volvemos a la importación normal, como la tenías
 import Navbar from "@/components/layout/Navbar"; 
 import Footer from "@/components/layout/Footer"; 
 import "react-big-calendar/lib/css/react-big-calendar.css";
@@ -34,7 +34,7 @@ export default function RootLayout({
         <body
           className={`${geistSans.variable} ${geistMono.variable} antialiased flex flex-col min-h-screen bg-gray-290`}
         >
-          {/* Navbar con Clerk */}
+          {/* Usamos la Navbar normal */}
           <Navbar />
 
           {/* Contenido principal */}

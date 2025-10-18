@@ -12,17 +12,20 @@
     "@clerk/clerk-react": "^5.46.2",
     "@clerk/nextjs": "^6.31.10",
     "@headlessui/react": "^2.2.8",
+    "@react-three/drei": "^10.7.6",
+    "@react-three/fiber": "^9.4.0",
     "csv-parse": "^6.1.0",
     "csv-stringify": "^6.6.0",
     "date-fns": "^4.1.0",
     "framer-motion": "^12.23.12",
     "lucide-react": "^0.544.0",
-    "next": "15.4.5",
+    "next": "^15.5.6",
     "papaparse": "^5.5.3",
-    "react": "^19.1.0",
+    "react": "19.1.0",
     "react-big-calendar": "^1.19.4",
     "react-dom": "19.1.0",
-    "react-scroll": "^1.9.3"
+    "react-scroll": "^1.9.3",
+    "three": "^0.180.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
