@@ -1,17 +1,17 @@
 // src/middleware.ts
-import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server';
+import { clerkMiddleware } from "@clerk/nextjs/server";
 
-// 1. Define la ÚNICA ruta que queremos proteger
-const isProtectedRoute = createRouteMatcher([
-  '/dashboard/barber(.*)',
-]);
+export default clerkMiddleware({
+  // 1. Define las rutas que SÍ son PÚBLICAS.
+  publicRoutes: [
+    "/", 
+    "/gallery", 
+    "/services", 
+    "/api(.*)" // Permite que las APIs de Clerk funcionen
+  ],
 
-export default clerkMiddleware((auth, req) => {
-  // 2. Si la ruta es la que protegemos, llama a auth.protect()
-  if (isProtectedRoute(req)) {
-    auth.protect();
-  }
-  // Todas las demás rutas serán públicas por defecto
+  // 2. /dashboard/barber NO está en la lista,
+  //    así que será protegida automáticamente.
 });
 
 export const config = {
