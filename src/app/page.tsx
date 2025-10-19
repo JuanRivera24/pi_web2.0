@@ -1,8 +1,11 @@
-"use client";
+"use client"; 
+
 import Image from "next/image";
+import { Link as ScrollLink } from "react-scroll"; // 1. Importamos ScrollLink
 import ContactSection from "@/components/contactform/ContactForm";
 import AppointmentsCalendar from "@/components/appointment/AppointmentCalendar";
 import ServicesAccordion from "@/components/services/services";
+
 export default function HomePage() {
   return (
     <main>
@@ -28,21 +31,38 @@ export default function HomePage() {
             Un espacio donde tradición, excelencia y modernidad se unen para que vivas una experiencia única.
           </p>
           <div className="mt-8 flex flex-wrap justify-center gap-4">
-            <a href="#citas" className="px-6 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-600/30">
+            
+            {/* --- MEJORA 1: Botones con Scroll Suave --- */}
+            <ScrollLink
+              to="citas"
+              smooth
+              duration={600}
+              offset={-80}
+              className="px-6 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-600/30 cursor-pointer"
+            >
               Agendar cita
-            </a>
-            <a href="#servicios" className="px-6 py-3 rounded-xl bg-white/10 hover:bg-white/20 text-white ring-1 ring-white/30 backdrop-blur">
+            </ScrollLink>
+            <ScrollLink
+              to="servicios"
+              smooth
+              duration={600}
+              offset={-80}
+              className="px-6 py-3 rounded-xl bg-white/10 hover:bg-white/20 text-white ring-1 ring-white/30 backdrop-blur cursor-pointer"
+            >
               Ver servicios
-            </a>
+            </ScrollLink>
+
           </div>
         </div>
         <div className="absolute bottom-6 left-1/2 -translate-x-1/2 text-white/70 text-sm animate-bounce">
           Desliza para ver más
         </div>
       </section>
+      
       {/* Servicios */}
       <section id="servicios" className="scroll-mt-24 py-16">
         <div className="mx-auto w-full max-w-screen-2xl px-4 sm:px-6 lg:px-8">
+          {/* --- MEJORA 2: Título añadido --- */}
           <div className="w-full rounded-2xl bg-white shadow-sm ring-1 ring-gray-200 p-4 sm:p-6">
             <ServicesAccordion />
           </div>
@@ -50,9 +70,10 @@ export default function HomePage() {
       </section>
 
       {/* Citas */}
-      <section id="calendario" className="scroll-mt-24 py-16">
+      {/* --- BUG CORREGIDO: id="calendario" cambiado a id="citas" --- */}
+      <section id="citas" className="scroll-mt-24 py-16">
         <div className="mx-auto w-full max-w-screen-2xl px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl font-bold tracking-tight text-gray-900 mb-8">Reserva tu cita</h2>
+          <h2 className="text-3xl font-bold tracking-tight text-gray-900 mb-8 text-center">Reserva tu Cita</h2>
           <div className="w-full rounded-2xl bg-white shadow-sm ring-1 ring-gray-200 p-4 sm:p-6">
             <AppointmentsCalendar />
           </div>
@@ -62,7 +83,6 @@ export default function HomePage() {
       {/* Contacto */}
       <section id="contacto" className="scroll-mt-24 py-16">
         <div className="mx-auto w-full max-w-screen-2xl px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl font-bold tracking-tight text-gray-900 mb-8">Contáctanos</h2>
           <div className="w-full rounded-2xl bg-white shadow-sm ring-1 ring-gray-200 p-4 sm:p-6">
             <ContactSection />
           </div>

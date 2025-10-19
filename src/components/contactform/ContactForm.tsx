@@ -1,6 +1,6 @@
 "use client";
-import { useState } from "react";
-import Image from "next/image"; // 1. IMPORTAMOS el componente Image
+import React, { useState } from "react"; 
+import Image from "next/image";
 
 export default function ContactSection() {
   const [status, setStatus] = useState<string | null>(null);
@@ -22,7 +22,7 @@ export default function ContactSection() {
     };
 
     try {
-const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/contactanos`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/contactanos`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -55,7 +55,6 @@ const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/contactanos`, {
         <div className="grid items-center gap-10 lg:grid-cols-12">
           <div className="lg:col-span-6">
             <div className="relative">
-              {/* 2. REEMPLAZAMOS <img> por <Image> y añadimos width y height */}
               <Image 
                 src="/Images/contactanos.jpg" 
                 alt="Contacto"
