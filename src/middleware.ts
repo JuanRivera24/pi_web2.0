@@ -1,27 +1,25 @@
-// v2 - forzando el despliegue
+// src/middleware.ts
 import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server';
 
+// Define las rutas que SÍ son públicas
 const isPublicRoute = createRouteMatcher([
   '/', 
   '/gallery', 
   '/services',
-  '/api(.*)', 
+  '/api(.*)', // Permite que las APIs de Clerk funcionen
 ]);
 
 export default clerkMiddleware((auth, req) => {
-  // LOG DE DIAGNÓSTICO: Para ver si el middleware se ejecuta
-  console.log('Middleware está corriendo para la ruta:', req.url);
-
+  // Protege todas las rutas que NO estén en la lista pública
   if (!isPublicRoute(req)) {
-    // LOG DE DIAGNÓSTICO: Para ver si está intentando proteger
-    console.log('RUTA PROTEGIDA. ¡Debería redirigir!:', req.url);
     auth.protect();
   }
 });
 
 export const config = {
+  // Este matcher hace que el middleware se ejecute en casi todo
   matcher: [
-    '/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)',
+    '/((?!.+\\.[\\w]+$|_next).*)',
     '/(api|trpc)(.*)',
   ],
 };
