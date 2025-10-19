@@ -1,18 +1,13 @@
-// NO 'async' y NO 'await currentUser()' aquí
 import Image from "next/image";
-import Link from "next/link";
+import Link from "next/link"; // 1. Importa el componente Link de Next.js
 import ContactSection from "@/components/contactform/ContactForm";
 import BarberAgenda from "@/components/dashboard/BarberAgenda"; 
 
-// Lo volvemos un componente simple
 export default function BarberHomePage() {
-  
-  // El middleware.ts se encargará de la seguridad
-  // Ya no hay 'await currentUser()' aquí.
-
   return (
-    <> 
-      {/* HERO Section */}
+    <> {/* Usamos un Fragment porque el <main> ya está en el layout */}
+      
+      {/* HERO Section (sin cambios) */}
       <section id="hero" className="relative isolate w-full min-h-screen flex items-center pt-24">
         <Image
           src="/Images/fondo-barberia.jpg" 
@@ -22,7 +17,7 @@ export default function BarberHomePage() {
           sizes="100vw"
           className="object-cover object-center"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/70 via/black/50 to-black/60" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-black/60" />
         <div className="relative z-10 mx-auto max-w-screen-xl px-6 text-center text-white">
           <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-sm backdrop-blur ring-1 ring-white/20">
             💈 Panel de Barbero
@@ -36,7 +31,7 @@ export default function BarberHomePage() {
         </div>
       </section>
 
-      {/* Sección de "Tu Agenda" */}
+      {/* Sección de "Tu Agenda" (sin cambios) */}
       <section id="agenda" className="scroll-mt-24 py-16">
         <div className="mx-auto w-full max-w-screen-2xl px-4 sm:px-6 lg:px-8">
           <h2 className="text-3xl font-bold tracking-tight text-gray-900 mb-8">Tu Agenda</h2>
@@ -46,13 +41,14 @@ export default function BarberHomePage() {
         </div>
       </section>
 
-      {/* Sección para el Dashboard General */}
+      {/* --- NUEVA SECCIÓN PARA EL DASHBOARD --- */}
       <section id="dashboard-general" className="scroll-mt-24 py-16 bg-gray-50">
         <div className="mx-auto w-full max-w-screen-2xl px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl font-bold tracking-tight text-gray-900 mb-4">Análisis de Datos</h2>
           <p className="text-lg text-gray-600 mb-8 max-w-2xl mx-auto">
             Explora las métricas y visualizaciones de tu rendimiento en nuestro dashboard general.
           </p>
+          {/* 2. Usamos Link para la navegación externa, con target="_blank" para abrir en una nueva pestaña */}
           <Link
             href="https://kingdombarberdashboard.streamlit.app/"
             target="_blank"
@@ -63,8 +59,10 @@ export default function BarberHomePage() {
           </Link>
         </div>
       </section>
+      {/* --- FIN DE LA NUEVA SECCIÓN --- */}
 
-      {/* Contacto */}
+
+      {/* Contacto (sin cambios) */}
       <section id="contacto" className="scroll-mt-24 py-16">
         <div className="mx-auto w-full max-w-screen-2xl px-4 sm:px-6 lg:px-8">
           <h2 className="text-3xl font-bold tracking-tight text-gray-900 mb-8">Contáctanos</h2>
