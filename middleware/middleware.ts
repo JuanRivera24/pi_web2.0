@@ -1,3 +1,4 @@
+// v2 - forzando el despliegue
 import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server';
 
 const isPublicRoute = createRouteMatcher([
