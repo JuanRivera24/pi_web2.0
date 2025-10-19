@@ -1,5 +1,5 @@
 import Image from "next/image";
-import Link from "next/link"; // 1. Importa el componente Link de Next.js
+import Link from "next/link";
 import ContactSection from "@/components/contactform/ContactForm";
 import BarberAgenda from "@/components/dashboard/BarberAgenda"; 
 
@@ -31,8 +31,9 @@ export default function BarberHomePage() {
         </div>
       </section>
 
-      {/* Sección de "Tu Agenda" (sin cambios) */}
-      <section id="agenda" className="scroll-mt-24 py-16">
+      {/* --- CORRECCIÓN AQUÍ --- */}
+      {/* Sección de "Tu Agenda" con el ID corregido */}
+      <section id="citas" className="scroll-mt-24 py-16">
         <div className="mx-auto w-full max-w-screen-2xl px-4 sm:px-6 lg:px-8">
           <h2 className="text-3xl font-bold tracking-tight text-gray-900 mb-8">Tu Agenda</h2>
           <div className="w-full rounded-2xl bg-white shadow-sm ring-1 ring-gray-200 p-6 min-h-[300px]">
@@ -41,14 +42,13 @@ export default function BarberHomePage() {
         </div>
       </section>
 
-      {/* --- NUEVA SECCIÓN PARA EL DASHBOARD --- */}
+      {/* Sección para el Dashboard General (sin cambios) */}
       <section id="dashboard-general" className="scroll-mt-24 py-16 bg-gray-50">
         <div className="mx-auto w-full max-w-screen-2xl px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl font-bold tracking-tight text-gray-900 mb-4">Análisis de Datos</h2>
           <p className="text-lg text-gray-600 mb-8 max-w-2xl mx-auto">
             Explora las métricas y visualizaciones de tu rendimiento en nuestro dashboard general.
           </p>
-          {/* 2. Usamos Link para la navegación externa, con target="_blank" para abrir en una nueva pestaña */}
           <Link
             href="https://kingdombarberdashboard.streamlit.app/"
             target="_blank"
@@ -59,8 +59,6 @@ export default function BarberHomePage() {
           </Link>
         </div>
       </section>
-      {/* --- FIN DE LA NUEVA SECCIÓN --- */}
-
 
       {/* Contacto (sin cambios) */}
       <section id="contacto" className="scroll-mt-24 py-16">

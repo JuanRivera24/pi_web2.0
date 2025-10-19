@@ -1,17 +1,20 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image"; // 1. Se importa el componente Image
+import Image from "next/image";
 import { UserButton, useUser } from "@clerk/nextjs";
 import { Link as ScrollLink } from "react-scroll";
+import { usePathname } from 'next/navigation';
 
 export default function BarberNavbar() {
   const { user } = useUser();
+  const pathname = usePathname();
+  const homePath = "/dashboard/barber";
+  const isHomePage = pathname === homePath;
 
   return (
     <nav className="fixed top-0 left-0 w-full bg-blue-900 shadow-md px-6 py-4 flex justify-between items-center z-50">
       <Link href="/dashboard/barber">
-        {/* 2. Se reemplaza <img> por <Image> con width y height */}
         <Image 
           src="/Images/Logo.png" 
           alt="Logo de la página" 
@@ -24,6 +27,64 @@ export default function BarberNavbar() {
       <div className="flex items-center space-x-6">
         <ul className="flex space-x-6 text-white/90 font-medium items-center">
           
+          {/* --- ENLACES REORDENADOS --- */}
+
+          {/* 1. Agenda */}
+          {isHomePage ? (
+            <li>
+              <ScrollLink
+                to="citas"
+                smooth
+                duration={600}
+                offset={-80}
+                className="hover:text-white transition-colors cursor-pointer"
+              >
+                Agenda
+              </ScrollLink>
+            </li>
+          ) : (
+            <li>
+              <Link 
+                href={`${homePath}#citas`}
+                className="hover:text-white transition-colors cursor-pointer"
+              >
+                Agenda
+              </Link>
+            </li>
+          )}
+          
+          {/* 2. Galería */}
+          <li>
+            <Link href="/dashboard/barber/gallery" className="hover:text-white transition-colors cursor-pointer">
+              Galería
+            </Link>
+          </li>
+          
+          {/* 3. Contacto */}
+          {isHomePage ? (
+            <li>
+              <ScrollLink
+                to="contacto"
+                smooth
+                duration={600}
+                offset={-50}
+                className="hover:text-white transition-colors cursor-pointer"
+              >
+                Contacto
+              </ScrollLink>
+            </li>
+          ) : (
+            <li>
+              <Link 
+                href={`${homePath}#contacto`}
+                className="hover:text-white transition-colors cursor-pointer"
+              >
+                Contacto
+              </Link>
+            </li>
+          )}
+
+          {/* 4. Dashboard */}
           <li>
             <Link 
               href="https://kingdombarberdashboard.streamlit.app" 
@@ -34,24 +95,7 @@ export default function BarberNavbar() {
               Dashboard
             </Link>
           </li>
-          
-          <li>
-            <Link href="/dashboard/barber/gallery" className="hover:text-white transition-colors cursor-pointer">
-              Galería
-            </Link>
-          </li>
 
-          <li>
-            <ScrollLink
-              to="contacto"
-              smooth
-              duration={600}
-              offset={-50}
-              className="hover:text-white transition-colors cursor-pointer"
-            >
-              Contacto
-            </ScrollLink>
-          </li>
         </ul>
 
         {/* Saludo y botón de sesión */}
