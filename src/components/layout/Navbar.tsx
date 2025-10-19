@@ -1,11 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image"; // 1. Se importa el componente Image
+import Image from "next/image";
 import { FC, useState, useEffect, Fragment } from "react";
 import { SignedIn, SignedOut, UserButton, useUser } from "@clerk/nextjs";
 import { Menu, Transition } from "@headlessui/react";
 import { Link as ScrollLink } from "react-scroll";
+// 1. Importamos el hook para leer la URL
+import { useSearchParams } from "next/navigation";
 
 import LoginForm from "@/components/auth/LoginForm";
 import BarberLoginForm from "@/components/auth/BarberLoginForm";
@@ -13,17 +15,30 @@ import BarberLoginForm from "@/components/auth/BarberLoginForm";
 const Navbar: FC = () => {
   const [modalView, setModalView] = useState<"client-login" | "client-register" | "barber-login" | null>(null);
   const { isSignedIn } = useUser();
+  // 2. Inicializamos el hook
+  const searchParams = useSearchParams();
 
+  // 3. ESTE ES EL useEffect CORREGIDO
   useEffect(() => {
     if (isSignedIn) {
-      setModalView(null);
+      setModalView(null); // Si el usuario inicia sesión, cierra cualquier modal
+    } else {
+      // Si no ha iniciado sesión, revisamos la "nota secreta" de la URL
+      const modalToOpen = searchParams.get('modal');
+
+      if (modalToOpen === 'barber-login') {
+        // ¡Si la nota es "barber-login", abre el modal de Barbero!
+        setModalView('barber-login');
+      } else if (modalToOpen === 'login') {
+        // Para la nota genérica "login", abre el de Cliente
+        setModalView('client-login');
+      }
     }
-  }, [isSignedIn]);
+  }, [isSignedIn, searchParams, setModalView]); // Asegúrate de que las dependencias estén correctas
 
   return (
     <nav className="fixed top-0 left-0 w-full bg-blue-900 shadow-md px-6 py-4 flex justify-between items-center z-50">
       <Link href="/">
-        {/* 2. Se reemplaza <img> por <Image> con width y height */}
         <Image 
           src="/Images/Logo.png" 
           alt="Logo de la página" 
@@ -33,7 +48,8 @@ const Navbar: FC = () => {
         />
       </Link>
 
-      <ul className="flex space-x-6 text-white/90 font-medium items-center">
+      {/* 4. Mantenemos suppressHydrationWarning para prevenir errores */}
+      <ul className="flex space-x-6 text-white/90 font-medium items-center" suppressHydrationWarning>
         <li><Link href="/" className="hover:text-white transition-colors">Nosotros</Link></li>
         <li><Link href="/services" className="hover:text-white transition-colors">Servicios</Link></li>
         <li><Link href="/#calendario" className="hover:text-white transition-colors">Citas</Link></li>
