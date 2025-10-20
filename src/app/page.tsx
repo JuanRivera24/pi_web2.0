@@ -73,7 +73,6 @@ export default function HomePage() {
       {/* --- BUG CORREGIDO: id="calendario" cambiado a id="citas" --- */}
       <section id="citas" className="scroll-mt-24 py-16">
         <div className="mx-auto w-full max-w-screen-2xl px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl font-bold tracking-tight text-gray-900 mb-8 text-center">Reserva tu Cita</h2>
           <div className="w-full rounded-2xl bg-white shadow-sm ring-1 ring-gray-200 p-4 sm:p-6">
             <AppointmentsCalendar />
           </div>
