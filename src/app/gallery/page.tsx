@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react';
 import { Loader, X } from 'lucide-react';
 import Image from 'next/image';
 
-// Interfaz para las imágenes (igual que en la vista de barbero)
 interface GalleryImage {
   id: number;
   description: string;
@@ -39,29 +38,29 @@ export default function ClientGalleryPage() {
   
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center min-h-[60vh]">
-        <Loader className="animate-spin text-blue-600" size={48} />
+      <div className="p-8 bg-gray-900 text-white min-h-screen flex justify-center items-center">
+        <Loader className="animate-spin" size={48} />
       </div>
     );
   }
 
   return (
-    <div className="p-8 bg-gray-50 min-h-screen">
+    <div className="p-8 bg-gray-900 text-white min-h-screen">
       <div className="text-center mb-12">
-        <h1 className="text-4xl font-extrabold text-gray-900 tracking-tight">Nuestra Galería</h1>
-        <p className="mt-2 text-lg text-gray-600">Explora los estilos y cortes de nuestros talentosos barberos.</p>
+        <h1 className="text-4xl font-extrabold text-white tracking-tight">Nuestra Galería</h1>
+        <p className="mt-2 text-lg text-gray-300">Explora los estilos y cortes de nuestros talentosos barberos.</p>
       </div>
 
       {images.length === 0 ? (
         <div className="text-center py-20">
-          <p className="text-gray-500">Aún no hay imágenes en nuestra galería. ¡Vuelve pronto!</p>
+          <p className="text-gray-400">Aún no hay imágenes en nuestra galería. ¡Vuelve pronto!</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {images.map((image) => (
             <div 
               key={image.id} 
-              className="group rounded-lg shadow-md bg-white flex flex-col overflow-hidden cursor-pointer transition-transform duration-300 hover:scale-105 hover:shadow-xl"
+              className="group rounded-lg shadow-lg bg-gray-800 flex flex-col overflow-hidden cursor-pointer transition-transform duration-300 hover:scale-105 hover:shadow-xl"
               onClick={() => setSelectedImage(image)}
             >
               <div className="overflow-hidden">
@@ -75,15 +74,14 @@ export default function ClientGalleryPage() {
                 />
               </div>
               <div className="p-4 flex-grow">
-                <h3 className="text-lg font-bold text-gray-800">{image.category}</h3>
-                <p className="text-sm text-gray-500 mt-1">{image.description}</p>
+                <h3 className="text-lg font-bold text-white">{image.category}</h3>
+                <p className="text-sm text-gray-300 mt-1">{image.description}</p>
               </div>
             </div>
           ))}
         </div>
       )}
 
-      {/* Modal para ver la imagen en grande */}
       {selectedImage && (
         <div 
           className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50 p-4"

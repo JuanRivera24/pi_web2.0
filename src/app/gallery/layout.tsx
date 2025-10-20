@@ -1,16 +1,18 @@
-import Navbar from "@/components/layout/Navbar"; // Asegúrate que esta ruta a tu Navbar de cliente sea correcta
+// src/app/dashboard/barber/layout.tsx
+import BarberNavbar from "@/components/layout/BarberNavbar";
 
-export default function GalleryLayout({
+export default function BarberDashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   return (
     <div>
-      <Navbar />
-      <main className="pt-20"> {/* pt-20 o similar para compensar la altura de la navbar */}
+      <BarberNavbar />
+      <main>
         {children}
       </main>
+      {/* El footer se ha ido. Ahora solo se mostrará el del layout principal. */}
     </div>
   );
 }
