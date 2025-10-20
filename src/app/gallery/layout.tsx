@@ -1,6 +1,5 @@
 // src/app/dashboard/barber/layout.tsx
-import BarberNavbar from "@/components/layout/BarberNavbar";
-
+import Navbar from "@/components/layout/Navbar"; 
 export default function BarberDashboardLayout({
   children,
 }: {
@@ -8,7 +7,7 @@ export default function BarberDashboardLayout({
 }) {
   return (
     <div>
-      <BarberNavbar />
+      <Navbar />
       <main>
         {children}
       </main>
