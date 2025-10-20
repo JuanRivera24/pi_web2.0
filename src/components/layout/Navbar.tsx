@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { FC, useState, useEffect, Fragment } from "react";
-import { usePathname } from 'next/navigation'; // 1. Importamos el hook para saber la ruta
+import { usePathname } from 'next/navigation';
 import { SignedIn, SignedOut, UserButton, useUser } from "@clerk/nextjs";
 import { Menu, Transition } from "@headlessui/react";
 import { Link as ScrollLink } from "react-scroll";
@@ -12,14 +12,12 @@ import LoginForm from "@/components/auth/LoginForm";
 import BarberLoginForm from "@/components/auth/BarberLoginForm";
 
 // --- COMPONENTE INTERNO PARA EVITAR REPETIR CÓDIGO ---
-// Este componente contiene la lógica "inteligente" de los enlaces.
 const NavLinks: FC<{ onLinkClick?: () => void }> = ({ onLinkClick }) => {
   const pathname = usePathname();
   const isHomePage = pathname === '/';
 
   const commonLinkClass = "hover:text-white transition-colors cursor-pointer block py-2";
 
-  // Función para manejar el clic y cerrar el menú móvil si es necesario
   const handleClick = () => {
     if (onLinkClick) {
       onLinkClick();
@@ -39,7 +37,14 @@ const NavLinks: FC<{ onLinkClick?: () => void }> = ({ onLinkClick }) => {
         </Link>
       </li>
       
-      {/* Lógica condicional para los enlaces de scroll */}
+      {/* --- INICIO: CÓDIGO AÑADIDO --- */}
+      <li>
+        <Link href="/gallery" className={commonLinkClass} onClick={handleClick}>
+          Galería
+        </Link>
+      </li>
+      {/* --- FIN: CÓDIGO AÑADIDO --- */}
+      
       {isHomePage ? (
         <>
           <li><ScrollLink to="citas" smooth duration={600} offset={-80} className={commonLinkClass} onClick={handleClick}>Citas</ScrollLink></li>
@@ -61,7 +66,7 @@ const NavLinks: FC<{ onLinkClick?: () => void }> = ({ onLinkClick }) => {
 // --- NAVBAR PRINCIPAL ---
 const Navbar: FC = () => {
   const [modalView, setModalView] = useState<"client-login" | "client-register" | "barber-login" | null>(null);
-  const [isMenuOpen, setIsMenuOpen] = useState(false); // 2. Estado para el menú móvil
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { isSignedIn } = useUser();
 
   useEffect(() => {
@@ -116,9 +121,9 @@ const Navbar: FC = () => {
         </SignedIn>
         <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="ml-4 text-white focus:outline-none">
           {isMenuOpen ? (
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg> // Icono de 'X'
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
           ) : (
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16m-7 6h7" /></svg> // Icono de 'Hamburguesa'
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16m-7 6h7" /></svg>
           )}
         </button>
       </div>
