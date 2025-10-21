@@ -1,5 +1,4 @@
 "use client";
-// --- Se importa useRef ---
 import { useMemo, useState, useEffect, Fragment, useRef } from "react";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { useUser, SignIn } from "@clerk/nextjs";
@@ -8,7 +7,6 @@ import { format, parse, startOfWeek as dfStartOfWeek, getDay } from "date-fns";
 import { es } from "date-fns/locale";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import { Listbox, Transition } from '@headlessui/react';
-// Importaciones de diseño
 import { motion, AnimatePresence } from "framer-motion";
 import { MapPin, User as UserIcon, Scissors, Clock, Check, X, ChevronLeft, ChevronRight } from 'lucide-react';
 
@@ -116,10 +114,8 @@ export default function AppointmentCalendar() {
       } catch (error) { console.error("Error cargando datos:", error); showToast("Error al conectar", "error");
       } finally { setIsLoading(false); }
     }
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    fetchData();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user, API_URL]); // showToast quitado de dependencias
+    fetchData(); // Comentario eslint-disable eliminado
+  }, [user, API_URL]); // Comentario eslint-disable y showToast quitados
 
   // --- useEffect para leer el parámetro de la URL ---
   useEffect(() => {
@@ -146,8 +142,7 @@ export default function AppointmentCalendar() {
           router.replace(`${pathname}?${newParams.toString()}`, { scroll: false });
       }
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [servicios, searchParams, pathname, router]); // Mantenemos dependencias originales
+  }, [servicios, searchParams, pathname, router]); // Comentario eslint-disable eliminado
 
   // --- LÓGICA DE MEMOS Y HELPERS ---
   const filteredBarberos = useMemo(() => {
@@ -258,7 +253,7 @@ export default function AppointmentCalendar() {
     const clash = events.some(e => e.start < end && e.end > start && String(e.barberoId) === String(selectedBarbero) && (!editingEvent || String(e.id) !== String(editingEvent.id)));
     if (clash) { showToast("Barbero ocupado en ese horario.", "error"); return; }
     const appointmentData = { id: editingEvent ? editingEvent.id : `cita_${Date.now()}`, title: "Cita Cliente", fechaInicio: start.toISOString(), fechaFin: end.toISOString(), totalCost: subtotal, clienteId: user.id, sedeId: Number(selectedSede), barberId: Number(selectedBarbero), services: JSON.stringify(selectedServicios), serviciosDetalle: JSON.stringify(selectedServicios.map(id => servicios.find(s => String(s.id) === String(id))?.nombreServicio)), nombreSede: sedes.find(s => s.id === selectedSede)?.nombreSede, nombreCompletoBarbero: (() => { const b = barberos.find(b => b.id === selectedBarbero); return b ? `${b.nombreBarbero} ${b.apellidoBarbero}` : "" })(), };
-    try { const url = editingEvent ? `${API_URL}/citas-activas/${editingEvent.id}` : `${API_URL}/citas-activas`; const response = await fetch(url, { method: editingEvent ? 'PUT' : 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(appointmentData), }); if (!response.ok) { const errorData = await response.json(); throw new Error(errorData.message || 'Error servidor'); } const savedResult: ApiCita = await response.json(); const newEvent: AppointmentEvent = { id: savedResult.id, title: generateEventTitle({ barberoId: savedResult.barberId, clienteId: savedResult.clienteId }, barberos, user.id), start: new Date(savedResult.fechaInicio), end: new Date(savedResult.fechaFin), userId: savedResult.clienteId, sedeId: String(savedResult.sedeId), barberoId: String(savedResult.barberId), servicioIds: typeof savedResult.services === 'string' ? JSON.parse(savedResult.services) : [] }; if (editingEvent) { setEvents(prev => prev.map(ev => String(ev.id) === String(newEvent.id) ? newEvent : ev)); showToast("Cita actualizada", "success"); } else { setEvents(prev => [...prev, newEvent]); showToast("Cita creada", "success"); // Actualizar índice si se crea una nueva cita
+    try { const url = editingEvent ? `${API_URL}/citas-activas/${editingEvent.id}` : `${API_URL}/citas-activas`; const response = await fetch(url, { method: editingEvent ? 'PUT' : 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(appointmentData), }); if (!response.ok) { const errorData = await response.json(); throw new Error(errorData.message || 'Error servidor'); } const savedResult: ApiCita = await response.json(); const newEvent: AppointmentEvent = { id: savedResult.id, title: generateEventTitle({ barberoId: savedResult.barberId, clienteId: savedResult.clienteId }, barberos, user.id), start: new Date(savedResult.fechaInicio), end: new Date(savedResult.fechaFin), userId: savedResult.clienteId, sedeId: String(savedResult.sedeId), barberoId: String(savedResult.barberId), servicioIds: typeof savedResult.services === 'string' ? JSON.parse(savedResult.services) : [] }; if (editingEvent) { setEvents(prev => prev.map(ev => String(ev.id) === String(newEvent.id) ? newEvent : ev)); showToast("Cita actualizada", "success"); } else { setEvents(prev => [...prev, newEvent]); showToast("Cita creada", "success");
       const updatedUserAppointments = [...userAppointments, newEvent].sort((a,b) => a.start.getTime() - b.start.getTime());
       const newIndex = updatedUserAppointments.findIndex(app => app.id === newEvent.id);
       setCurrentUserAppointmentIndex(newIndex);
@@ -276,14 +271,14 @@ export default function AppointmentCalendar() {
        if (userAppointments.length === 0 || currentUserAppointmentIndex <= 0) return;
        const newIndex = currentUserAppointmentIndex - 1;
        setCurrentUserAppointmentIndex(newIndex);
-       setDate(userAppointments[newIndex].start); // Actualiza la fecha del calendario
+       setDate(userAppointments[newIndex].start);
    };
 
    const handleNavigateToNextUserAppointment = () => {
        if (userAppointments.length === 0 || currentUserAppointmentIndex >= userAppointments.length - 1) return;
        const newIndex = currentUserAppointmentIndex + 1;
        setCurrentUserAppointmentIndex(newIndex);
-       setDate(userAppointments[newIndex].start); // Actualiza la fecha del calendario
+       setDate(userAppointments[newIndex].start);
    };
 
 
@@ -296,9 +291,9 @@ export default function AppointmentCalendar() {
       </div>
 
       {/* --- Contador y flechas CON ÍNDICE --- */}
-      <div className="text-center mb-4 flex items-center justify-center gap-2 text-gray-300"> {/* Reducido gap-4 a gap-2 */}
+      <div className="text-center mb-4 flex items-center justify-center gap-2 text-gray-300">
         <span>Citas activas: {userAppointments.length}</span>
-        {userAppointments.length > 0 && ( // Solo muestra flechas y número si hay citas
+        {userAppointments.length > 0 && (
           <>
             <button
               onClick={handleNavigateToPrevUserAppointment}
@@ -309,11 +304,9 @@ export default function AppointmentCalendar() {
               <ChevronLeft size={20} />
             </button>
 
-            {/* --- NÚMERO DE CITA ACTUAL --- */}
-            <span className="font-semibold w-6 text-center"> {/* Añadido w-6 y text-center para alinear */}
+            <span className="font-semibold w-6 text-center">
               {currentUserAppointmentIndex >= 0 ? currentUserAppointmentIndex + 1 : '-'}
             </span>
-            {/* --- FIN NÚMERO --- */}
 
             <button
               onClick={handleNavigateToNextUserAppointment}
@@ -330,7 +323,6 @@ export default function AppointmentCalendar() {
 
 
       {isLoading ? <CalendarSkeleton /> : ( <div className="bg-white shadow-sm ring-1 ring-gray-200 rounded-2xl p-4 md:p-6"> <Calendar culture="es" localizer={localizer} events={events} startAccessor="start" endAccessor="end" selectable onSelectSlot={handleSelectSlot} onSelectEvent={(ev) => { const e = ev as AppointmentEvent; if (e.userId === user?.id) { setEditingEvent(e); setSelectedDate(e.start); setSelectedSede(e.sedeId); setSelectedBarbero(e.barberoId); setSelectedServicios(e.servicioIds.map(String)); setSelectedHour(e.start.getHours()); setIsPreselected(false);
-      // Actualizar índice al seleccionar una cita existente
       const index = userAppointments.findIndex(app => app.id === e.id);
       setCurrentUserAppointmentIndex(index);
        } else { showToast("Horario ocupado.", "info"); } }} style={{ height: 600 }} step={60} timeslots={1} defaultView={Views.WEEK} view={view} onView={(v) => setView(v)} min={minTime} max={maxTime} date={date} onNavigate={(newDate) => setDate(newDate)} components={{ toolbar: Toolbar }} messages={{ next: "Siguiente", previous: "Anterior", today: "Hoy", month: "Mes", week: "Semana", day: "Día", noEventsInRange: "No hay eventos", showMore: (c: number) => `+${c} más` }} eventPropGetter={(event) => ({ style: { backgroundColor: event.userId === user?.id ? '#2563eb' : '#6b7280', borderRadius: "8px", color: "white", padding: "4px 6px", border: `1px solid ${event.userId === user?.id ? '#1d4ed8' : '#4b5563'}` } })} /> </div> )}

@@ -1,62 +1,148 @@
 "use client";
 import { useEffect, useState, useMemo } from "react";
-import { Calendar, Clock, User, Scissors, MapPin, Edit, Trash2, Save, XCircle } from "lucide-react"; // 1. Importamos íconos
+import { Calendar, Clock, User, Scissors, MapPin, Edit, Trash2, Save, XCircle } from "lucide-react";
 
 // --- INTERFAZ (Sin cambios) ---
 interface CitaEnDashboard {
   id: string;
   clienteId: string;
   fechaInicio: string;
-  fechaFin: string; 
+  fechaFin: string;
   totalCost: number;
   nombreSede: string;
   nombreCompletoBarbero: string;
-  serviciosDetalle: string; 
+  serviciosDetalle: string;
   sedeId: number;
   barberId: number;
-  services: string; 
+  services: string;
 }
 
 export default function BarberAgenda() {
-  // --- LÓGICA DE ESTADO (Sin cambios) ---
+  // --- LÓGICA DE ESTADO ---
   const [citas, setCitas] = useState<CitaEnDashboard[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [toast, setToast] = useState<string | null>(null);
   const [editingCitaId, setEditingCitaId] = useState<string | null>(null);
-  const [newHour, setNewHour] = useState<string>(""); 
-  const [modifying, setModifying] = useState(false); 
+  const [newHour, setNewHour] = useState<string>("");
+  const [modifying, setModifying] = useState(false);
   const API_URL = process.env.NEXT_PUBLIC_API_URL;
   const hours = useMemo(() => Array.from({ length: 12 }, (_, i) => i + 10), []);
 
-  const showToast = (message: string, type: "success" | "error" = "success") => {
+  // --- AJUSTE: Eliminar el parámetro 'type' no usado ---
+  const showToast = (message: string) => {
     setToast(message);
     setTimeout(() => setToast(null), 3000);
   };
 
-  // --- LÓGICA DE FETCH (Sin cambios) ---
+  // --- LÓGICA DE FETCH ---
   useEffect(() => {
     const fetchAllCitas = async () => {
+      setLoading(true); // Asegurar que loading se setea al inicio
       try {
         const response = await fetch(`${API_URL}/citas-activas`);
         if (!response.ok) { throw new Error('Error al obtener las citas desde la API'); }
         const allCitas: CitaEnDashboard[] = await response.json();
-        if (allCitas.length > 0 && (allCitas[0].sedeId === undefined || allCitas[0].services === undefined)) { console.error("API ERROR: Faltan datos clave para la modificación."); setError("Error de API: Faltan datos clave para la modificación."); }
+        // Validar datos clave (opcional pero bueno)
+        if (allCitas.length > 0 && (allCitas[0].sedeId === undefined || allCitas[0].services === undefined)) {
+            console.error("API ERROR: Faltan datos clave para la modificación.");
+            // Podrías setear un error específico si quieres notificar al usuario
+            // setError("Error de API: Faltan datos clave para la modificación.");
+        }
         const sortedCitas = allCitas.sort((a, b) => new Date(a.fechaInicio).getTime() - new Date(b.fechaInicio).getTime());
         setCitas(sortedCitas);
+        setError(null); // Limpiar errores previos si la carga fue exitosa
       } catch (err: unknown) {
         console.error("Error al cargar las citas:", err);
-        if (err instanceof Error) { setError(`No se pudieron cargar las citas: ${err.message}`); } else { setError("No se pudieron cargar las citas. Intenta de nuevo más tarde."); }
+        if (err instanceof Error) { setError(`No se pudieron cargar las citas: ${err.message}`); }
+        else { setError("No se pudieron cargar las citas. Intenta de nuevo más tarde."); }
       } finally { setLoading(false); }
     };
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     fetchAllCitas();
   }, [API_URL]);
 
-  // --- LÓGICA DE HANDLERS (Sin cambios) ---
-  const handleModificarCita = async () => { if (!editingCitaId || !newHour) return; setModifying(true); try { const citaOriginalCompleta = citas.find(c => c.id === editingCitaId); if (!citaOriginalCompleta) { throw new Error("No se encontró la cita."); } const duracion = new Date(citaOriginalCompleta.fechaFin).getTime() - new Date(citaOriginalCompleta.fechaInicio).getTime(); const nuevaFechaInicio = new Date(citaOriginalCompleta.fechaInicio); nuevaFechaInicio.setHours(Number(newHour), 0, 0, 0); const nuevaFechaFin = new Date(nuevaFechaInicio.getTime() + duracion); if (nuevaFechaInicio < new Date()) { showToast("No puedes mover una cita a una hora que ya pasó.", "error"); setModifying(false); return; } const updatePayload = { ...citaOriginalCompleta, fechaInicio: nuevaFechaInicio.toISOString(), fechaFin: nuevaFechaFin.toISOString(), }; const putResponse = await fetch(`${API_URL}/citas-activas/${editingCitaId}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(updatePayload), }); if (!putResponse.ok) { const errorData = await putResponse.json(); throw new Error(errorData.message || 'Error al guardar los cambios.'); } const citaActualizada: CitaEnDashboard = await putResponse.json(); setCitas(prevCitas => prevCitas.map(cita => cita.id === editingCitaId ? citaActualizada : cita).sort((a, b) => new Date(a.fechaInicio).getTime() - new Date(b.fechaInicio).getTime())); showToast("Cita actualizada exitosamente.", "success"); setEditingCitaId(null); setNewHour(""); } catch (err: unknown) { console.error("Error al modificar la cita:", err); if (err instanceof Error) { showToast(err.message, "error"); } else { showToast("Ocurrió un error inesperado.", "error"); } } finally { setModifying(false); } };
-  const handleCancelarCita = async (citaId: string) => { if (!window.confirm("¿Estás seguro de que quieres cancelar esta cita?")) { return; } try { const response = await fetch(`${API_URL}/citas-activas/${citaId}`, { method: 'DELETE', }); if (!response.ok && response.status !== 204) { const errorData = await response.json().catch(() => ({ message: 'No se pudo cancelar la cita.' })); throw new Error(errorData.message || 'No se pudo cancelar la cita.'); } setCitas(prevCitas => prevCitas.filter(cita => cita.id !== citaId)); showToast("Cita cancelada exitosamente.", "success"); } catch (err: unknown) { console.error("Error al cancelar la cita:", err); if (err instanceof Error) { alert(`Error: ${err.message}`); } else { alert("Ocurrió un error inesperado al cancelar la cita."); } } };
+  // --- LÓGICA DE HANDLERS ---
+  const handleModificarCita = async () => {
+      if (!editingCitaId || !newHour) return;
+      setModifying(true);
+      try {
+          const citaOriginalCompleta = citas.find(c => c.id === editingCitaId);
+          if (!citaOriginalCompleta) { throw new Error("No se encontró la cita."); }
+          // Calcular duración
+          const duracion = new Date(citaOriginalCompleta.fechaFin).getTime() - new Date(citaOriginalCompleta.fechaInicio).getTime();
+          // Crear nueva fecha de inicio
+          const nuevaFechaInicio = new Date(citaOriginalCompleta.fechaInicio);
+          nuevaFechaInicio.setHours(Number(newHour), 0, 0, 0);
+          // Crear nueva fecha de fin
+          const nuevaFechaFin = new Date(nuevaFechaInicio.getTime() + duracion);
 
-  // --- JSX (Solo cambios visuales) ---
+          // Validación de hora pasada
+          if (nuevaFechaInicio < new Date()) {
+              showToast("No puedes mover una cita a una hora que ya pasó."); // Ya no se pasa "error"
+              setModifying(false);
+              return;
+          }
+
+          // Crear payload actualizado
+          const updatePayload = {
+              ...citaOriginalCompleta,
+              fechaInicio: nuevaFechaInicio.toISOString(),
+              fechaFin: nuevaFechaFin.toISOString(),
+          };
+
+          const putResponse = await fetch(`${API_URL}/citas-activas/${editingCitaId}`, {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(updatePayload),
+          });
+
+          if (!putResponse.ok) {
+              const errorData = await putResponse.json();
+              throw new Error(errorData.message || 'Error al guardar los cambios.');
+          }
+
+          const citaActualizada: CitaEnDashboard = await putResponse.json();
+
+          // Actualizar estado y ordenar
+          setCitas(prevCitas =>
+              prevCitas.map(cita =>
+                  cita.id === editingCitaId ? citaActualizada : cita
+              ).sort((a, b) => new Date(a.fechaInicio).getTime() - new Date(b.fechaInicio).getTime())
+          );
+
+          showToast("Cita actualizada exitosamente."); // Ya no se pasa "success"
+          setEditingCitaId(null);
+          setNewHour("");
+
+      } catch (err: unknown) {
+          console.error("Error al modificar la cita:", err);
+          if (err instanceof Error) { showToast(err.message); } // Ya no se pasa "error"
+          else { showToast("Ocurrió un error inesperado."); } // Ya no se pasa "error"
+      } finally {
+          setModifying(false);
+      }
+  };
+
+  const handleCancelarCita = async (citaId: string) => {
+      if (!window.confirm("¿Estás seguro de que quieres cancelar esta cita?")) { return; }
+      try {
+          const response = await fetch(`${API_URL}/citas-activas/${citaId}`, { method: 'DELETE', });
+          if (!response.ok && response.status !== 204) { // 204 No Content es OK para DELETE
+              const errorData = await response.json().catch(() => ({ message: 'No se pudo cancelar la cita.' }));
+              throw new Error(errorData.message || 'No se pudo cancelar la cita.');
+          }
+          setCitas(prevCitas => prevCitas.filter(cita => cita.id !== citaId));
+          showToast("Cita cancelada exitosamente."); // Ya no se pasa "success"
+      } catch (err: unknown) {
+          console.error("Error al cancelar la cita:", err);
+          // Usamos showToast para errores también para consistencia
+          if (err instanceof Error) { showToast(`Error: ${err.message}`); } // Ya no se pasa "error"
+          else { showToast("Ocurrió un error inesperado al cancelar la cita."); } // Ya no se pasa "error"
+      }
+  };
+
+  // --- JSX ---
   if (loading) { return <p className="text-center text-gray-400 py-8">Cargando agenda...</p>; }
   if (error) { return <p className="text-center text-red-400 py-8">{error}</p>; }
   if (citas.length === 0) {
@@ -70,14 +156,21 @@ export default function BarberAgenda() {
 
   return (
     <div className="relative">
+      {/* El estilo del toast sigue basándose en el contenido del mensaje */}
       {toast && <div className={`fixed top-24 right-5 ${toast.includes('Error') || toast.includes('pasó') || toast.includes('inesperado') ? 'bg-red-500' : 'bg-green-500'} text-white py-2 px-4 rounded-lg shadow-lg z-50`}>{toast}</div>}
       <div className="space-y-6">
         {citas.map((cita) => {
           const fechaCita = new Date(cita.fechaInicio);
           const isEditing = editingCitaId === cita.id;
           let serviciosTexto = 'No especificado';
-          try { const detalles = JSON.parse(cita.serviciosDetalle); if(Array.isArray(detalles)) { serviciosTexto = detalles.join(', '); } } catch { /* No hacer nada */ }
-          
+          try {
+              // Intenta parsear, si falla o no es array, se queda con 'No especificado'
+              const detalles = JSON.parse(cita.serviciosDetalle);
+              if(Array.isArray(detalles)) {
+                  serviciosTexto = detalles.join(', ');
+              }
+          } catch { /* Ignorar error de parseo */ }
+
           return (
             <div key={cita.id} className={`bg-gray-800 p-5 rounded-xl border border-white/10 shadow-lg transition-all duration-300 ${isEditing ? 'ring-2 ring-blue-500' : ''}`}>
               <div className="flex justify-between items-start">
@@ -96,7 +189,13 @@ export default function BarberAgenda() {
                     <div className="flex items-center gap-2">
                       <label htmlFor={`hora-${cita.id}`} className="font-semibold text-white flex items-center gap-2"><Clock size={16} className="text-gray-400"/> Hora:</label>
                       <select id={`hora-${cita.id}`} value={newHour} onChange={(e) => setNewHour(e.target.value)} className="bg-gray-700 border border-gray-600 rounded-lg px-3 py-1.5 text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        {hours.map((hour) => { const now = new Date(); const isToday = fechaCita.toDateString() === now.toDateString(); const isPast = isToday && hour <= now.getHours(); return (<option key={hour} value={hour} disabled={isPast}>{hour}:00 {isPast ? "(Pasado)" : ""}</option>); })}
+                        {hours.map((hour) => {
+                            const now = new Date();
+                            const isToday = fechaCita.toDateString() === now.toDateString();
+                            // Deshabilitar si es hoy Y la hora es menor o igual a la actual
+                            const isPast = isToday && hour <= now.getHours();
+                            return (<option key={hour} value={hour} disabled={isPast}>{hour}:00 {isPast ? "(Pasado)" : ""}</option>);
+                        })}
                       </select>
                     </div>
                   )}
