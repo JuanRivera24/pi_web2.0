@@ -1,18 +1,16 @@
-"use client"; // Es necesario para el onClick del botón
+"use client"; 
 
 import Image from "next/image";
 import Link from "next/link";
-// Se ELIMINA la importación de "react-scroll" que causaba el error
 import ContactSection from "@/components/contactform/ContactForm";
 import BarberAgenda from "@/components/dashboard/BarberAgenda"; 
 
 export default function BarberHomePage() {
 
-  // Función simple para manejar el scroll suave
+  // Tu función de scroll (sin cambios)
   const handleScroll = (id: string) => {
     const element = document.getElementById(id);
     if (element) {
-      // El offset de -80px es para compensar la altura de la navbar
       const yOffset = -80; 
       const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset;
       window.scrollTo({top: y, behavior: 'smooth'});
@@ -20,10 +18,10 @@ export default function BarberHomePage() {
   };
 
   return (
-    <> {/* Usamos un Fragment porque el <main> ya está en el layout */}
-      
-      {/* HERO Section */}
-      <section id="hero" className="relative isolate w-full min-h-screen flex items-center pt-24">
+    // El Fragment es correcto ya que el <main> está en el layout principal
+    <> 
+      {/* HERO Section (sin cambios) */}
+      <section id="hero" className="relative isolate w-full min-h-screen flex items-center">
         <Image
           src="/Images/fondo-barberia.jpg" 
           alt="Barbería"
@@ -43,8 +41,6 @@ export default function BarberHomePage() {
           <p className="mt-4 text-base sm:text-lg text-white/85">
             Gestiona tu agenda y mantente en contacto con nosotros.
           </p>
-
-          {/* --- BOTONES CON LA SOLUCIÓN CORRECTA --- */}
           <div className="mt-8 flex flex-wrap justify-center gap-4">
             <button
               onClick={() => handleScroll('citas')}
@@ -59,25 +55,27 @@ export default function BarberHomePage() {
               Ver Galería
             </Link>
           </div>
-          
         </div>
       </section>
+
+      {/* --- MEJORA: Secciones integradas en el fondo oscuro --- */}
 
       {/* Sección de "Tu Agenda" */}
       <section id="citas" className="scroll-mt-24 py-16">
         <div className="mx-auto w-full max-w-screen-2xl px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl font-bold tracking-tight text-gray-900 mb-8">Tu Agenda</h2>
-          <div className="w-full rounded-2xl bg-white shadow-sm ring-1 ring-gray-200 p-6 min-h-[300px]">
-            <BarberAgenda />
-          </div>
+          {/* Se elimina la caja blanca y se ajusta el título */}
+          <h2 className="text-3xl font-bold tracking-tight text-white mb-8 text-center">Tu Agenda</h2>
+          <BarberAgenda />
         </div>
       </section>
 
       {/* Sección para el Dashboard General */}
-      <section id="dashboard-general" className="scroll-mt-24 py-16 bg-gray-50">
+      {/* MEJORA: Fondo sutilmente distinto para jerarquía */}
+      <section id="dashboard-general" className="scroll-mt-24 py-16 bg-blue-950">
         <div className="mx-auto w-full max-w-screen-2xl px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl font-bold tracking-tight text-gray-900 mb-4">Análisis de Datos</h2>
-          <p className="text-lg text-gray-600 mb-8 max-w-2xl mx-auto">
+          {/* Se ajustan colores de texto */}
+          <h2 className="text-3xl font-bold tracking-tight text-white mb-4">Análisis de Datos</h2>
+          <p className="text-lg text-gray-300 mb-8 max-w-2xl mx-auto">
             Explora las métricas y visualizaciones de tu rendimiento en nuestro dashboard general.
           </p>
           <Link
@@ -94,10 +92,8 @@ export default function BarberHomePage() {
       {/* Contacto */}
       <section id="contacto" className="scroll-mt-24 py-16">
         <div className="mx-auto w-full max-w-screen-2xl px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl font-bold tracking-tight text-gray-900 mb-8">Contáctanos</h2>
-          <div className="w-full rounded-2xl bg-white shadow-sm ring-1 ring-gray-200 p-4 sm:p-6">
-            <ContactSection />
-          </div>
+           {/* Se elimina la caja blanca */}
+          <ContactSection />
         </div>
       </section>
     </>
