@@ -1,4 +1,6 @@
 // app/gallery/layout.tsx
+"use client";
+
 import { Suspense } from 'react'; // 👈 Import Suspense
 
 export default function GalleryLayout({ 
