@@ -186,20 +186,25 @@ export default function AppointmentCalendar() {
   const showToast = (m: string, type: ToastType = "info") => { setToast({ message: m, type }); setTimeout(() => setToast(null), 3000); };
 
 
-  // --- Bloque !user ---
+// --- Bloque !user ---
   if (!user) {
     return (
       <>
-        <div ref={calendarRef} id="citas" className="scroll-mt-24 bg-gray-900 rounded-2xl p-8 text-center">
-          <h3 className="text-2xl font-bold text-white mb-2">🔒 Inicia Sesión</h3>
-          <p className="text-gray-300">Debes iniciar sesión para poder ver la agenda y reservar tu cita.</p>
-          <button
-            onClick={() => setIsLoginOpen(true)}
-            className="mt-6 bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-900 focus:ring-blue-500"
-          >
-            Ingresar
-          </button>
-        </div>
+        {/* SECCIÓN MODIFICADA: Aplicamos el estilo de la sección de dashboard */}
+        <section ref={calendarRef} id="citas" className="scroll-mt-24 py-16 bg-blue-950">
+          <div className="mx-auto w-full max-w-screen-2xl px-4 sm:px-6 lg:px-8 text-center">
+            <h2 className="text-3xl font-bold tracking-tight text-white mb-4">🔒 Inicia Sesión</h2>
+            <p className="text-lg text-gray-300 mb-8 max-w-2xl mx-auto">
+              Debes iniciar sesión para poder ver la agenda y reservar tu cita.
+            </p>
+            <button
+              onClick={() => setIsLoginOpen(true)}
+              className="inline-block bg-blue-600 text-white font-semibold py-3 px-8 rounded-lg shadow-md hover:bg-blue-700 transition-transform duration-300 hover:scale-105"
+            >
+              Ingresar
+            </button>
+          </div>
+        </section>
 
         {isLoginOpen && (
           <div
