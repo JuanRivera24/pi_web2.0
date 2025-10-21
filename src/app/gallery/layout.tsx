@@ -1,17 +1,19 @@
-// src/app/dashboard/barber/layout.tsx
-import Navbar from "@/components/layout/Navbar"; 
-export default function BarberDashboardLayout({
+// app/gallery/layout.tsx
+import { Suspense } from 'react'; // 👈 Import Suspense
+
+export default function GalleryLayout({ 
   children,
 }: {
   children: React.ReactNode;
 }) {
   return (
     <div>
-      <Navbar />
-      <main>
+      {/* Si el componente de la página (page.tsx) o cualquier componente
+        en este layout usa useSearchParams(), DEBE estar envuelto en <Suspense>. 
+      */}
+      <Suspense fallback={<div>Cargando galería...</div>}>
         {children}
-      </main>
-      {/* El footer se ha ido. Ahora solo se mostrará el del layout principal. */}
+      </Suspense>
     </div>
   );
 }
