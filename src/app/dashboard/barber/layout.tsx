@@ -1,4 +1,5 @@
 // src/app/dashboard/barber/layout.tsx
+"use client";
 import BarberNavbar from "@/components/layout/BarberNavbar";
 
 export default function BarberDashboardLayout({

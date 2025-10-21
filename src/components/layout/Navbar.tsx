@@ -3,7 +3,9 @@
 import Link from "next/link";
 import Image from "next/image";
 import { FC, useState, useEffect, Fragment } from "react";
-import { usePathname } from 'next/navigation';
+// --- Hooks añadidos ---
+import { usePathname, useSearchParams, useRouter } from 'next/navigation';
+// --- Fin Hooks añadidos ---
 import { SignedIn, SignedOut, UserButton, useUser } from "@clerk/nextjs";
 import { Menu, Transition } from "@headlessui/react";
 import { Link as ScrollLink } from "react-scroll";
@@ -37,13 +39,11 @@ const NavLinks: FC<{ onLinkClick?: () => void }> = ({ onLinkClick }) => {
         </Link>
       </li>
       
-      {/* --- INICIO: CÓDIGO AÑADIDO --- */}
       <li>
         <Link href="/gallery" className={commonLinkClass} onClick={handleClick}>
           Galería
         </Link>
       </li>
-      {/* --- FIN: CÓDIGO AÑADIDO --- */}
       
       {isHomePage ? (
         <>
@@ -69,6 +69,31 @@ const Navbar: FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { isSignedIn } = useUser();
 
+  // --- INICIO: LÓGICA PARA LEER LA URL ---
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const router = useRouter();
+
+  // Este useEffect leerá la URL al cargar la página
+  useEffect(() => {
+    // 1. Lee el parámetro 'modal' de la URL
+    const modalQuery = searchParams.get('modal');
+
+    // 2. Si existe y el usuario NO está logueado, abre el modal
+    if (!isSignedIn && modalQuery === 'barber-login') {
+      setModalView('barber-login');
+      // 3. Limpia la URL para que no se quede el ?modal=...
+      router.replace(pathname, { scroll: false });
+    } else if (!isSignedIn && modalQuery === 'client-login') {
+      setModalView('client-login');
+      // 3. Limpia la URL
+      router.replace(pathname, { scroll: false });
+    }
+  }, [searchParams, pathname, router, isSignedIn]); // Dependencias del Effect
+  // --- FIN: LÓGICA PARA LEER LA URL ---
+
+
+  // Este useEffect ya lo tenías (cierra el modal si inicia sesión)
   useEffect(() => {
     if (isSignedIn) {
       setModalView(null);
@@ -136,7 +161,11 @@ const Navbar: FC = () => {
             <SignedOut>
               <li className="w-full pt-4 border-t border-white/20">
                 <Menu as="div" className="relative w-full">
+                  
+                  {/* --- AQUÍ ESTABA EL ERROR --- */}
                   <div><Menu.Button className="bg-blue-300 text-blue-900 px-4 py-2 rounded-lg hover:bg-blue-200 font-semibold w-full">Ingresar</Menu.Button></div>
+                  {/* --- FIN DE LA CORRECCIÓN --- */}
+
                   <Transition as={Fragment} enter="transition ease-out duration-100" enterFrom="transform opacity-0 scale-95" enterTo="transform opacity-100 scale-100" leave="transition ease-in duration-75" leaveFrom="transform opacity-100 scale-100" leaveTo="transform opacity-0 scale-95">
                     <Menu.Items className="absolute right-0 mt-2 w-full origin-top-right bg-white rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
                       <div className="py-1">
@@ -152,7 +181,7 @@ const Navbar: FC = () => {
         </div>
       )}
 
-      {/* --- MODALES (sin cambios) --- */}
+      {/* --- MODALES --- */}
       <SignedOut>
         {modalView && (
           <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-[60]">
