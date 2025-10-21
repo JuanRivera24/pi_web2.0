@@ -47,7 +47,7 @@ const generateEventTitle = (cita: CitaTitleInfo, barberos: Barbero[], userId: st
   const clienteId = cita.clienteId;
   const barbero = barberos.find(b => String(b.id) === String(barberoId));
   const nombreBarbero = barbero ? `${barbero.nombreBarbero}` : "Barbero";
-  if (userId === clienteId) { return `Tu cita con ${nombreBarbero} 💈`; }
+  if (userId === clienteId) { return `Tu cita con ${nombreBarbero}`; }
   return `Reservado`;
 };
 
