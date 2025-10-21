@@ -22,9 +22,6 @@ export default function HomePage() {
         />
         <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-black/60" />
         <div className="relative z-10 mx-auto max-w-screen-xl px-6 text-center text-white">
-          <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-sm backdrop-blur ring-1 ring-white/20">
-            💈 Kingdom Barber
-          </span>
           <h1 className="mt-6 text-4xl sm:text-6xl font-extrabold leading-tight tracking-tight drop-shadow">
             Eleva tu estilo, gobierna tu imagen
           </h1>
