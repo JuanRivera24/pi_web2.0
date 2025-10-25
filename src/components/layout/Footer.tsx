@@ -73,8 +73,8 @@ export default function Footer() {
           </h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-4">
             {sedes.map((sede, index) => (
-              <div 
-                key={index} 
+              <div
+                key={index}
                 className="bg-gray-800 p-4 rounded-lg ring-1 ring-white/10 shadow-sm transition-shadow hover:shadow-lg hover:ring-blue-500/50"
               >
                 <h4 className="font-bold text-base mb-2 text-white truncate">
@@ -105,13 +105,16 @@ export default function Footer() {
         <div className="max-w-7xl mx-auto px-4">
           <div className="flex flex-col md:flex-row justify-between items-center gap-8">
             <div className="text-center md:text-left">
-              <Image 
-                src="/Images/Logo.png"
-                alt="Logo Kingdom Barber"
-                width={180}
-                height={48}
-                className="h-10 w-auto mb-2 mx-auto md:mx-0"
-              />
+              {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
+              <a href="/">
+                <Image
+                  src="/Images/Logo.png"
+                  alt="Logo Kingdom Barber"
+                  width={180}
+                  height={48}
+                  className="h-10 w-auto mb-2 mx-auto md:mx-0"
+                />
+              </a>
               <p className="text-blue-300">Tu estilo, nuestra pasión</p>
             </div>
             <div className="text-center">
