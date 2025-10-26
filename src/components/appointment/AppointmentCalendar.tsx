@@ -10,6 +10,7 @@ import "react-big-calendar/lib/css/react-big-calendar.css";
 import { Listbox, Transition } from "@headlessui/react";
 import { motion, AnimatePresence } from "framer-motion";
 import { MapPin, User as UserIcon, Scissors, Clock, Check, X, ChevronLeft, ChevronRight } from "lucide-react";
+import UserAppointmentModal from  "@/components/appointment/UserAppointmentModal";
 
 // --- INTERFACES Y TIPOS ---
 
@@ -32,7 +33,8 @@ interface Servicio {
   duracionMin: number;
 }
 
-type AppointmentEvent = {
+// Exportamos este tipo para que el nuevo modal lo pueda usar
+export type AppointmentEvent = {
   id: string;
   title: string;
   start: Date;
@@ -115,6 +117,9 @@ export default function AppointmentCalendar({
   const [selectedServicios, setSelectedServicios] = useState<string[]>([]);
   const [selectedHour, setSelectedHour] = useState<number>(10);
   const [isPreselected, setIsPreselected] = useState(false);
+
+  // --- NUEVO ESTADO ---
+  const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
 
   // Estado de datos (API)
   const [sedes, setSedes] = useState<Sede[]>([]);
@@ -245,13 +250,7 @@ export default function AppointmentCalendar({
       }
     }
   }, [servicios, preselectedServiceId, searchParams, pathname, router, onClose]);
-
-  // Efecto: Limpiar barbero si cambia la sede
-  useEffect(() => {
-    if (!editingEvent) {
-      setSelectedBarbero("");
-    }
-  }, [selectedSede, editingEvent]);
+  
 
   // --- DATOS MEMORIZADOS (UseMemo) ---
 
@@ -423,7 +422,7 @@ export default function AppointmentCalendar({
       setSelectedDate(clickedDate);
       setEditingEvent(null);
       setSelectedSede("");
-      setSelectedBarbero("");
+      setSelectedBarbero("auto");
       if (!isPreselected) {
         setSelectedServicios([]);
       }
@@ -468,14 +467,47 @@ export default function AppointmentCalendar({
 
   // Manejador: Guardar o Actualizar Cita
   const handleSaveAppointment = useCallback(async () => {
+    let finalBarberoId = selectedBarbero;
+
+    if (finalBarberoId === "auto") {
+      if (!selectedSede) {
+         showToast("Por favor, selecciona una sede primero.", "error");
+         return;
+      }
+      // Buscar barberos DISPONIBLES en esa sede y hora
+      const start = new Date(selectedDate!);
+      start.setHours(selectedHour, 0, 0, 0);
+      const end = new Date(start.getTime() + totalDuration * 60000);
+
+      const availableBarberos = filteredBarberos.filter(barbero => {
+        // Está disponible si NO tiene ninguna cita que choque con el horario deseado
+        return !events.some(e =>
+          e.start < end &&
+          e.end > start &&
+          String(e.barberoId) === String(barbero.id) &&
+          (!editingEvent || String(e.id) !== String(editingEvent.id)) // Excluir la cita actual si se edita
+        );
+      });
+
+
+      if (availableBarberos.length === 0) {
+        showToast("No hay barberos disponibles en esta sede para la hora seleccionada.", "error");
+        return;
+      }
+      // Seleccionar uno aleatorio DE LOS DISPONIBLES
+      const randomIndex = Math.floor(Math.random() * availableBarberos.length);
+      finalBarberoId = availableBarberos[randomIndex].id;
+    }
+
+
     if (
       !user ||
       !selectedDate ||
       !selectedSede ||
-      !selectedBarbero ||
+      !finalBarberoId || // Ahora SIEMPRE será un ID específico aquí
       selectedServicios.length === 0
     ) {
-      showToast("Por favor, completa todos los campos.", "error");
+      showToast("Por favor, completa todos los campos requeridos.", "error");
       return;
     }
 
@@ -484,20 +516,24 @@ export default function AppointmentCalendar({
 
     // Doble validación de tiempo (por si el usuario dejó el modal abierto)
     const now = new Date();
-    if (start < now) {
-      showToast("No puedes agendar en un horario que ya pasó.", "error");
+    if (start < now && (!editingEvent || editingEvent.start > start)) { // Permitir guardar si la hora original era en el pasado
+      showToast("No puedes agendar o mover una cita a un horario que ya pasó.", "error");
       return;
     }
     const minimumBookingTime = new Date(
       now.getTime() + BOOKING_BUFFER_MINUTES * 60000
     );
-    if (start < minimumBookingTime) {
-      showToast(
-        `Debes agendar con al menos ${BOOKING_BUFFER_MINUTES} minutos de antelación.`,
-        "error"
-      );
-      return;
+     // Solo aplicar buffer para citas nuevas o citas futuras movidas al presente
+    if (!editingEvent || start > now) {
+        if (start < minimumBookingTime) {
+          showToast(
+            `Debes agendar con al menos ${BOOKING_BUFFER_MINUTES} minutos de antelación.`,
+            "error"
+          );
+          return;
+        }
     }
+
 
     const end = new Date(start.getTime() + totalDuration * 60000);
 
@@ -507,38 +543,37 @@ export default function AppointmentCalendar({
       (end.getHours() === 22 && end.getMinutes() > 0)
     ) {
       showToast(
-        "La cita excede la hora de cierre (10pm). Revisa los servicios.",
+        "La cita excede la hora de cierre (10pm). Revisa los servicios o la hora.",
         "error"
       );
       return;
     }
 
-    // Validar choque de horarios (clash)
+    // Validar choque de horarios (clash) - Doble verificación por seguridad
     const clash = events.some(
       (e) =>
         e.start < end &&
         e.end > start &&
-        String(e.barberoId) === String(selectedBarbero) &&
+        String(e.barberoId) === String(finalBarberoId) &&
         (!editingEvent || String(e.id) !== String(editingEvent.id))
     );
 
     if (clash) {
-      showToast("Barbero ocupado en ese horario.", "error");
+      showToast("Conflicto de horario detectado. El barbero seleccionado ya está ocupado.", "error");
       return;
     }
 
     // Preparar datos para la API
     const appointmentData = {
       id: editingEvent ? editingEvent.id : `cita_${Date.now()}`,
-      title: "Cita Cliente", // El título real se genera en el backend o al recibir
+      title: "Cita Cliente",
       fechaInicio: start.toISOString(),
       fechaFin: end.toISOString(),
       totalCost: subtotal,
       clienteId: user.id,
       sedeId: Number(selectedSede),
-      barberId: Number(selectedBarbero),
+      barberId: Number(finalBarberoId),
       services: JSON.stringify(selectedServicios),
-      // Campos extra para JSON-Server (simulación)
       serviciosDetalle: JSON.stringify(
         selectedServicios.map(
           (id) => servicios.find((s) => String(s.id) === String(id))?.nombreServicio
@@ -546,7 +581,7 @@ export default function AppointmentCalendar({
       ),
       nombreSede: sedes.find((s) => s.id === selectedSede)?.nombreSede,
       nombreCompletoBarbero: (() => {
-        const b = barberos.find((b) => b.id === selectedBarbero);
+        const b = barberos.find((b) => b.id === finalBarberoId);
         return b ? `${b.nombreBarbero} ${b.apellidoBarbero}` : "";
       })(),
     };
@@ -610,7 +645,7 @@ export default function AppointmentCalendar({
         setCurrentUserAppointmentIndex(newIndex);
       }
 
-      // Cerrar modal
+      // Cerrar modal de edición
       setSelectedDate(null);
       setEditingEvent(null);
     } catch (error: unknown) {
@@ -624,7 +659,7 @@ export default function AppointmentCalendar({
     user,
     selectedDate,
     selectedSede,
-    selectedBarbero,
+    selectedBarbero, // Se necesita aquí para saber si era 'auto' originalmente
     selectedServicios,
     selectedHour,
     totalDuration,
@@ -637,45 +672,74 @@ export default function AppointmentCalendar({
     userAppointments,
     servicios,
     subtotal,
+    filteredBarberos, // Necesario para buscar disponibles si era 'auto'
   ]);
 
-  // Manejador: Eliminar Cita
-  const handleDeleteAppointment = useCallback(async () => {
-    if (
-      !editingEvent ||
-      !window.confirm("¿Estás seguro de que deseas eliminar esta cita?")
-    ) {
+
+  // --- MANEJADOR DE BORRADO DESDE DETALLES (MODIFICADO) ---
+  const handleDeleteFromDetails = useCallback(async (citaId: string) => {
+    if (!window.confirm("¿Estás seguro de que deseas eliminar esta cita?")) {
       return;
     }
 
     try {
       const response = await fetch(
-        `${API_URL}/citas-activas/${editingEvent.id}`,
+        `${API_URL}/citas-activas/${citaId}`,
         { method: "DELETE" }
       );
 
       if (response.status === 204 || response.ok) {
         setEvents((prev) =>
-          prev.filter((e) => String(e.id) !== String(editingEvent.id))
+          prev.filter((e) => String(e.id) !== String(citaId))
         );
         showToast("Cita eliminada", "success");
-        setSelectedDate(null);
-        setEditingEvent(null);
         setCurrentUserAppointmentIndex(-1); // Resetea el índice
+
+        // Si el modal de edición estaba abierto para *esa* cita, cerrarlo.
+        if (editingEvent && editingEvent.id === citaId) {
+          setSelectedDate(null);
+          setEditingEvent(null);
+        }
+
       } else {
-        const errorData = await response.json();
+        const errorData = await response.json().catch(() => ({}));
         throw new Error(errorData.error || "Error al eliminar");
       }
     } catch (error: unknown) {
-      console.error("Error al eliminar:", error);
+      console.error("Error al eliminar desde detalles:", error);
       showToast(
-        error instanceof Error
-          ? error.message
-          : "Error inesperado al eliminar.",
+        error instanceof Error ? error.message : "Error inesperado.",
         "error"
       );
     }
-  }, [editingEvent, API_URL, showToast]);
+  }, [API_URL, showToast, editingEvent]);
+
+
+  // El manejador de borrado original ahora solo llama a la nueva función
+  const handleDeleteAppointment = useCallback(async () => {
+    if (editingEvent) {
+      handleDeleteFromDetails(editingEvent.id);
+    }
+  }, [editingEvent, handleDeleteFromDetails]);
+
+
+  // --- MANEJADOR DE EDICIÓN DESDE DETALLES (MODIFICADO) ---
+  const handleEditFromDetails = useCallback((cita: AppointmentEvent) => {
+    // 1. Establecer el estado para abrir el modal de edición estándar
+    setEditingEvent(cita);
+    setSelectedDate(cita.start);
+    setSelectedSede(cita.sedeId);
+    setSelectedBarbero(cita.barberoId);
+    setSelectedServicios(cita.servicioIds.map(String));
+    setSelectedHour(cita.start.getHours());
+    setIsPreselected(false);
+
+    // 2. Actualizar el índice del carrusel de citas
+    const index = userAppointments.findIndex((app) => app.id === cita.id);
+    setCurrentUserAppointmentIndex(index);
+    
+  }, [userAppointments]);
+
 
   // Manejadores: Navegación entre citas del usuario
   const handleNavigateToPrevUserAppointment = useCallback(() => {
@@ -913,15 +977,44 @@ export default function AppointmentCalendar({
         </div>
       )}
 
-      {/* Modal de Agendamiento / Edición */}
+      {/* Botón "Detalles de la cita" */}
+      {!onClose && !isLoading && userAppointments.length > 0 && (
+        <div className="text-center mt-6">
+          <button
+            onClick={() => setIsDetailsModalOpen(true)}
+            className="bg-blue-600 text-white font-semibold py-2 px-6 rounded-lg shadow-md hover:bg-blue-700 transition-colors"
+          >
+            Ver Detalles de mis Citas ({userAppointments.length})
+          </button>
+        </div>
+      )}
+
+      {/* Modal de Detalles */}
+      <AnimatePresence>
+        {isDetailsModalOpen && (
+          <UserAppointmentModal
+            isOpen={isDetailsModalOpen}
+            onClose={() => setIsDetailsModalOpen(false)}
+            appointments={userAppointments}
+            onEditAppointment={handleEditFromDetails}
+            onDeleteAppointment={handleDeleteFromDetails}
+            servicios={servicios}
+            barberos={barberos}
+            sedes={sedes}
+          />
+        )}
+      </AnimatePresence>
+
+
+      {/* Modal de Agendamiento / Edición (Existente) */}
       <AnimatePresence>
         {selectedDate && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[70] flex items-center justify-center bg-black/70 backdrop-blur-sm overflow-y-auto p-4"
-            onClick={(e) => e.stopPropagation()} // Evita cierre al hacer clic dentro
+            // --- Z-INDEX MODIFICADO ---
+            className="fixed inset-0 z-[90] flex items-center justify-center bg-black/70 backdrop-blur-sm overflow-y-auto p-4"
           >
             <motion.div
               initial={{ scale: 0.9, opacity: 0, y: 20 }}
@@ -929,6 +1022,7 @@ export default function AppointmentCalendar({
               exit={{ scale: 0.9, opacity: 0, y: 20 }}
               transition={{ duration: 0.3, ease: "easeOut" }}
               className="bg-gray-800 text-white w-full max-w-md rounded-2xl shadow-2xl p-6 relative my-8 ring-1 ring-white/10"
+              onClick={(e) => e.stopPropagation()} // Evita cierre al hacer clic dentro
             >
               {/* IIFE para calcular minutos disponibles */}
               {(() => {
@@ -968,7 +1062,21 @@ export default function AppointmentCalendar({
                         <select
                           id="sede"
                           value={selectedSede}
-                          onChange={(e) => setSelectedSede(e.target.value)}
+                          onChange={(e) => {
+                            const newSede = e.target.value;
+                            setSelectedSede(newSede);
+
+                            // Lógica para resetear el barbero al cambiar de sede
+                            if (editingEvent) {
+                              if (newSede !== editingEvent.sedeId) {
+                                setSelectedBarbero("auto");
+                              } else {
+                                setSelectedBarbero(editingEvent.barberoId);
+                              }
+                            } else {
+                              setSelectedBarbero("auto");
+                            }
+                          }}
                           className="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                         >
                           <option value="" disabled>
@@ -982,7 +1090,7 @@ export default function AppointmentCalendar({
                         </select>
                       </div>
 
-                      {/* 2. Barbero (Aparece si hay sede) */}
+                      {/* 2. Servicios (Aparece si hay sede) */}
                       <AnimatePresence>
                         {selectedSede && (
                           <motion.div
@@ -992,110 +1100,7 @@ export default function AppointmentCalendar({
                             className="space-y-2"
                           >
                             <label className="flex items-center gap-2 font-medium text-gray-200">
-                              <UserIcon size={18} className="text-blue-400" /> 2.
-                              Barbero
-                            </label>
-                            <Listbox
-                              value={selectedBarbero}
-                              onChange={setSelectedBarbero}
-                              disabled={!selectedSede || filteredBarberos.length === 0}
-                            >
-                              <div className="relative mt-1">
-                                <Listbox.Button className="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-left focus:outline-none focus:ring-2 focus:ring-blue-500 relative cursor-default disabled:opacity-50 disabled:cursor-not-allowed">
-                                  <span className="block truncate">
-                                    {(() => {
-                                      const b = barberos.find(
-                                        (b) =>
-                                          String(b.id) === String(selectedBarbero)
-                                      );
-                                      if (b)
-                                        return `${b.nombreBarbero} ${b.apellidoBarbero || ""
-                                          }`;
-                                      if (!selectedSede)
-                                        return "-- Selecciona sede --";
-                                      if (filteredBarberos.length === 0)
-                                        return "-- No hay barberos -- 🚫";
-                                      return "-- Elige --";
-                                    })()}
-                                  </span>
-                                  <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
-                                    <svg
-                                      xmlns="http://www.w3.org/2000/svg"
-                                      viewBox="0 0 20 20"
-                                      fill="currentColor"
-                                      className="w-5 h-5 text-gray-400"
-                                      aria-hidden="true"
-                                    >
-                                      <path
-                                        fillRule="evenodd"
-                                        d="M10 3a.75.75 0 01.53.22l3.5 3.5a.75.75 0 01-1.06 1.06L10 4.81 6.03 8.78a.75.75 0 01-1.06-1.06l3.5-3.5A.75.75 0 0110 3z"
-                                        transform="rotate(180 10 10)"
-                                      />
-                                    </svg>
-                                  </span>
-                                </Listbox.Button>
-
-                                {/* ESTA ES LA ETIQUETA CORREGIDA */}
-                                <Transition
-                                  as={Fragment}
-                                  leave="transition ease-in duration-100"
-                                  leaveFrom="opacity-100"
-                                  leaveTo="opacity-0"
-                                >
-                                  <Listbox.Options className="absolute mt-1 max-h-60 w-full overflow-auto rounded-md bg-gray-700 py-1 text-base shadow-lg ring-1 ring-black/5 focus:outline-none sm:text-sm z-50">
-                                    {filteredBarberos.map((barbero) => (
-                                      <Listbox.Option
-                                        key={barbero.id}
-                                        className={({ active }) =>
-                                          `relative cursor-default select-none py-2 pl-10 pr-4 ${active
-                                            ? "bg-blue-600 text-white"
-                                            : "text-gray-200"
-                                          }`
-                                        }
-                                        value={barbero.id}
-                                      >
-                                        {({ selected }) => (
-                                          <>
-                                            <span
-                                              className={`block truncate ${selected
-                                                  ? "font-medium"
-                                                  : "font-normal"
-                                                }`}
-                                            >
-                                              {barbero.nombreBarbero}{" "}
-                                              {barbero.apellidoBarbero || ""}
-                                            </span>
-                                            {selected ? (
-                                              <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-blue-400">
-                                                <Check
-                                                  className="h-5 w-5"
-                                                  aria-hidden="true"
-                                                />
-                                              </span>
-                                            ) : null}
-                                          </>
-                                        )}
-                                      </Listbox.Option>
-                                    ))}
-                                  </Listbox.Options>
-                                </Transition>
-                              </div>
-                            </Listbox>
-                          </motion.div>
-                        )}
-                      </AnimatePresence>
-
-                      {/* 3. Servicios (Aparece si hay barbero) */}
-                      <AnimatePresence>
-                        {selectedBarbero && (
-                          <motion.div
-                            initial={{ opacity: 0, height: 0 }}
-                            animate={{ opacity: 1, height: "auto" }}
-                            exit={{ opacity: 0, height: 0 }}
-                            className="space-y-2"
-                          >
-                            <label className="flex items-center gap-2 font-medium text-gray-200">
-                              <Scissors size={18} className="text-blue-400" /> 3.
+                              <Scissors size={18} className="text-blue-400" /> 2.
                               Servicios
                             </label>
                             <div className="w-full bg-gray-700 border border-gray-600 rounded-lg p-3 max-h-40 overflow-y-auto space-y-2">
@@ -1124,7 +1129,7 @@ export default function AppointmentCalendar({
                                           handleServicioChange(String(servicio.id))
                                         }
                                         disabled={
-                                          !selectedBarbero || wouldExceedTime
+                                          !selectedSede || wouldExceedTime
                                         }
                                         className="h-5 w-5 rounded border-gray-500 bg-gray-600 text-blue-500 focus:ring-blue-500 disabled:opacity-50"
                                       />
@@ -1157,9 +1162,146 @@ export default function AppointmentCalendar({
                         )}
                       </AnimatePresence>
 
+                      {/* 3. Barbero (Aparece si hay servicios seleccionados) */}
+                      <AnimatePresence>
+                        {selectedSede && selectedServicios.length > 0 && (
+                          <motion.div
+                            initial={{ opacity: 0, height: 0 }}
+                            animate={{ opacity: 1, height: "auto" }}
+                            exit={{ opacity: 0, height: 0 }}
+                            className="space-y-2"
+                          >
+                            <label className="flex items-center gap-2 font-medium text-gray-200">
+                              <UserIcon size={18} className="text-blue-400" /> 3.
+                              Barbero (Opcional)
+                            </label>
+                            <Listbox
+                              value={selectedBarbero}
+                              onChange={setSelectedBarbero}
+                              disabled={!selectedSede || filteredBarberos.length === 0}
+                            >
+                              <div className="relative mt-1">
+                                <Listbox.Button className="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-left focus:outline-none focus:ring-2 focus:ring-blue-500 relative cursor-default disabled:opacity-50 disabled:cursor-not-allowed">
+                                  <span className="block truncate">
+                                    {(() => {
+                                      if (selectedBarbero === "auto") {
+                                        return "Asignación automática";
+                                      }
+                                      const b = barberos.find(
+                                        (b) =>
+                                          String(b.id) === String(selectedBarbero)
+                                      );
+                                      if (b)
+                                        return `${b.nombreBarbero} ${b.apellidoBarbero || ""
+                                          }`;
+                                      if (!selectedSede)
+                                        return "-- Selecciona sede --";
+                                      if (filteredBarberos.length === 0)
+                                        return "-- No hay barberos -- 🚫";
+                                      return "-- Elige --";
+                                    })()}
+                                  </span>
+                                  <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
+                                    <svg
+                                      xmlns="http://www.w3.org/2000/svg"
+                                      viewBox="0 0 20 20"
+                                      fill="currentColor"
+                                      className="w-5 h-5 text-gray-400"
+                                      aria-hidden="true"
+                                    >
+                                      <path
+                                        fillRule="evenodd"
+                                        d="M10 3a.75.75 0 01.53.22l3.5 3.5a.75.75 0 01-1.06 1.06L10 4.81 6.03 8.78a.75.75 0 01-1.06-1.06l3.5-3.5A.75.75 0 0110 3z"
+                                        transform="rotate(180 10 10)"
+                                      />
+                                    </svg>
+                                  </span>
+                                </Listbox.Button>
+
+                                <Transition
+                                  as={Fragment}
+                                  leave="transition ease-in duration-100"
+                                  leaveFrom="opacity-100"
+                                  leaveTo="opacity-0"
+                                >
+                                  <Listbox.Options className="absolute mt-1 max-h-60 w-full overflow-auto rounded-md bg-gray-700 py-1 text-base shadow-lg ring-1 ring-black/5 focus:outline-none sm:text-sm z-50">
+                                    <Listbox.Option
+                                      key="auto"
+                                      className={({ active }) =>
+                                        `relative cursor-default select-none py-2 pl-10 pr-4 ${active
+                                          ? "bg-blue-600 text-white"
+                                          : "text-gray-200"
+                                        }`
+                                      }
+                                      value="auto"
+                                    >
+                                      {({ selected }) => (
+                                        <>
+                                          <span
+                                            className={`block truncate ${selected
+                                              ? "font-medium"
+                                              : "font-normal"
+                                              }`}
+                                          >
+                                            Asignación automática
+                                          </span>
+                                          {selected ? (
+                                            <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-blue-400">
+                                              <Check
+                                                className="h-5 w-5"
+                                                aria-hidden="true"
+                                              />
+                                            </span>
+                                          ) : null}
+                                        </>
+                                      )}
+                                    </Listbox.Option>
+
+                                    {filteredBarberos.map((barbero) => (
+                                      <Listbox.Option
+                                        key={barbero.id}
+                                        className={({ active }) =>
+                                          `relative cursor-default select-none py-2 pl-10 pr-4 ${active
+                                            ? "bg-blue-600 text-white"
+                                            : "text-gray-200"
+                                          }`
+                                        }
+                                        value={barbero.id}
+                                      >
+                                        {({ selected }) => (
+                                          <>
+                                            <span
+                                              className={`block truncate ${selected
+                                                ? "font-medium"
+                                                : "font-normal"
+                                                }`}
+                                            >
+                                              {barbero.nombreBarbero}{" "}
+                                              {barbero.apellidoBarbero || ""}
+                                            </span>
+                                            {selected ? (
+                                              <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-blue-400">
+                                                <Check
+                                                  className="h-5 w-5"
+                                                  aria-hidden="true"
+                                                />
+                                              </span>
+                                            ) : null}
+                                          </>
+                                        )}
+                                      </Listbox.Option>
+                                    ))}
+                                  </Listbox.Options>
+                                </Transition>
+                              </div>
+                            </Listbox>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+
                       {/* 4. Hora (Aparece si hay servicios) */}
                       <AnimatePresence>
-                        {selectedServicios.length > 0 && (
+                        {selectedSede && selectedServicios.length > 0 && (
                           <motion.div
                             initial={{ opacity: 0, height: 0 }}
                             animate={{ opacity: 1, height: "auto" }}
@@ -1182,6 +1324,7 @@ export default function AppointmentCalendar({
                               disabled={selectedServicios.length === 0}
                               className="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                             >
+                              {/* --- INICIO MODIFICACIÓN VALIDACIÓN VISUAL HORA --- */}
                               {hours.map((hour) => {
                                 const now = new Date();
                                 const isToday =
@@ -1189,48 +1332,70 @@ export default function AppointmentCalendar({
                                   new Date(now).setHours(0, 0, 0, 0);
 
                                 // Calcular tiempos
-                                const slotStartTime = new Date(selectedDate!);
-                                slotStartTime.setHours(hour, 0, 0, 0);
+                                const potentialStart = new Date(selectedDate!);
+                                potentialStart.setHours(hour, 0, 0, 0);
+                                const potentialEnd = new Date(
+                                  potentialStart.getTime() + totalDuration * 60000
+                                );
 
-                                // Validaciones
+                                // Validaciones comunes
                                 const isPast = isToday && hour < now.getHours();
                                 const timeDifference =
-                                  slotStartTime.getTime() - now.getTime();
+                                  potentialStart.getTime() - now.getTime();
                                 const isWithinBuffer =
                                   isToday &&
                                   timeDifference <
                                   BOOKING_BUFFER_MINUTES * 60000;
-
-                                const start = new Date(slotStartTime);
-                                const end = new Date(
-                                  start.getTime() + totalDuration * 60000
-                                );
-                                const taken = events.some(
-                                  (e) =>
-                                    e.start < end &&
-                                    e.end > start &&
-                                    String(e.barberoId) ===
-                                    String(selectedBarbero) &&
-                                    (!editingEvent ||
-                                      String(e.id) !== String(editingEvent.id))
-                                );
                                 const exceedsClose =
-                                  end.getHours() > 22 ||
-                                  (end.getHours() === 22 &&
-                                    end.getMinutes() > 0);
+                                  potentialEnd.getHours() > 22 ||
+                                  (potentialEnd.getHours() === 22 &&
+                                    potentialEnd.getMinutes() > 0);
 
+                                // Validación de Ocupado (Taken) - Depende si es "auto" o específico
+                                let taken = false;
+                                let label = "";
+
+                                if (selectedBarbero === "auto") {
+                                  // Caso "auto": ¿Están TODOS los barberos de la sede ocupados?
+                                  if (filteredBarberos.length > 0) {
+                                      taken = filteredBarberos.every(barbero => {
+                                          return events.some(e =>
+                                              e.start < potentialEnd &&
+                                              e.end > potentialStart &&
+                                              String(e.barberoId) === String(barbero.id) &&
+                                              (!editingEvent || String(e.id) !== String(editingEvent.id))
+                                          );
+                                      });
+                                      if (taken) label = " (Todos ocupados)";
+                                  } else {
+                                      taken = true; // No hay barberos en la sede para esa hora
+                                      label = " (No hay barberos)";
+                                  }
+                                } else {
+                                  // Caso específico: ¿Está ESTE barbero ocupado?
+                                  taken = events.some(
+                                    (e) =>
+                                      e.start < potentialEnd &&
+                                      e.end > potentialStart &&
+                                      String(e.barberoId) === String(selectedBarbero) &&
+                                      (!editingEvent ||
+                                        String(e.id) !== String(editingEvent.id))
+                                  );
+                                   if (taken) label = " (Ocupado)";
+                                }
+
+                                // Combinar todas las condiciones de deshabilitado
                                 const isDisabled =
                                   taken ||
                                   isPast ||
                                   exceedsClose ||
                                   isWithinBuffer;
-                                let label = "";
-                                if (taken) label = " (Ocupado)";
-                                else if (isPast) label = " (Pasado)";
-                                else if (isWithinBuffer)
-                                  label = " (No disponible)";
-                                else if (exceedsClose)
-                                  label = " (Excede cierre)";
+
+                                // Ajustar etiquetas de prioridad (más importante primero)
+                                if (isPast) label = " (Pasado)";
+                                else if (isWithinBuffer) label = " (No disponible)";
+                                else if (exceedsClose) label = " (Excede cierre)";
+                                // La etiqueta 'taken' ya se estableció arriba
 
                                 return (
                                   <option
@@ -1242,6 +1407,7 @@ export default function AppointmentCalendar({
                                   </option>
                                 );
                               })}
+                               {/* --- FIN MODIFICACIÓN VALIDACIÓN VISUAL HORA --- */}
                             </select>
                           </motion.div>
                         )}
@@ -1272,7 +1438,7 @@ export default function AppointmentCalendar({
                         onClick={handleSaveAppointment}
                         className="flex-1 px-4 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-semibold transition-colors disabled:bg-blue-800 disabled:opacity-70"
                         disabled={
-                          !selectedBarbero || selectedServicios.length === 0
+                          !selectedSede || selectedServicios.length === 0
                         }
                       >
                         {editingEvent ? "Guardar" : "Confirmar"}
@@ -1288,7 +1454,8 @@ export default function AppointmentCalendar({
 
       {/* Toast / Notificación */}
       {toast && (
-        <div className="fixed bottom-6 right-6 z-[80]">
+        <div className="fixed bottom-6 right-6 z-[100]">
+          {/* Z-index subido a 100 para que aparezca sobre todos los modales */}
           <div
             className={cn(
               "rounded-lg shadow-lg px-5 py-3 text-white font-semibold",
