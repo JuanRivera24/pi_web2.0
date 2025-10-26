@@ -191,7 +191,7 @@ export default function ServiciosPage() {
     // Solo muestra el toast si NO se cerró antes de iniciar sesión
     if (!closedBeforeLogin) {
       setToastMessage(
-        "Calendario cerrado. Puedes visualizar la agenda completa en el inicio."
+        "Calendario cerrado. Puedes visualizar la agenda completa en la sección de agenda."
       );
       setTimeout(() => setToastMessage(null), 4000);
     }
