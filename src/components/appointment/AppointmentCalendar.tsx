@@ -147,8 +147,12 @@ export default function AppointmentCalendar() {
     return filtered.sort((a, b) => a.start.getTime() - b.start.getTime());
   }, [events, user]);
 
+  // --- CÓDIGO CORREGIDO AQUÍ ---
   const sortedServicios = useMemo(() => {
-    const servicesToUse = editingEvent ? editingEvent.servicioIds : (isPreselected ? selectedServicios : []);
+    // Si estamos editando, usa los servicios de la cita.
+    // Si es una cita nueva, usa los servicios seleccionados (que pueden estar vacíos o preseleccionados).
+    const servicesToUse = editingEvent ? editingEvent.servicioIds : selectedServicios;
+    
     if (servicesToUse.length > 0) {
       const selectedIds = servicesToUse.map(String);
       const selectedFullServices = servicios.filter(s => selectedIds.includes(String(s.id)));
@@ -156,7 +160,9 @@ export default function AppointmentCalendar() {
       return [...selectedFullServices, ...otherServices];
     }
     return servicios;
-  }, [servicios, selectedServicios, editingEvent, isPreselected]);
+    // Eliminamos 'isPreselected' de las dependencias
+  }, [servicios, selectedServicios, editingEvent]);
+  // --- FIN DE LA CORRECCIÓN ---
 
   const hours = useMemo(() => Array.from({ length: 13 }, (_, i) => i + 10), []);
   const minTime = useMemo(() => new Date(1970, 0, 1, 10, 0, 0), []);
@@ -246,7 +252,7 @@ export default function AppointmentCalendar() {
     if (!isPreselected) {
       setSelectedServicios([]);
     }
-    setIsPreselected(false);
+    setIsPreselected(false); // <--- Esto está bien aquí
   }, [view, showToast, isPreselected]);
 
   /** Maneja la selección/deselección de un servicio en el modal */
@@ -742,7 +748,7 @@ const Toolbar = ({ label, onNavigate, onView, view }: ToolbarProps) => {
   const btn = "px-3 py-2 rounded-md text-sm font-medium transition-colors";
   return (
     <div className="mb-4 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-      <div className="flex items-center gap-2"><button onClick={() => onNavigate("PREV")} className={cn(btn, "bg-blue-50 text-blue-700 hover:bg-blue-100")}>← Anterior</button><button onClick={() => onNavigate("TODAY")} className={cn(btn, "bg-blue-600 text-white hover:bg-blue-700")}>Hoy</button><button onClick={() => onNavigate("NEXT")} className={cn(btn, "bg-blue-50 text-blue-700 hover:bg-blue-100")}>Siguiente →</button></div>
+      <div className="flex items-center gap-2"><button onClick={() => onNavigate("PREV")} className={cn(btn, "bg-blue-50 text-blue-700 hover:bg-blue-1a00")}>← Anterior</button><button onClick={() => onNavigate("TODAY")} className={cn(btn, "bg-blue-600 text-white hover:bg-blue-700")}>Hoy</button><button onClick={() => onNavigate("NEXT")} className={cn(btn, "bg-blue-50 text-blue-700 hover:bg-blue-100")}>Siguiente →</button></div>
       <div className="text-center text-lg font-semibold text-gray-800">{label}</div>
       <div className="flex items-center gap-2"><button onClick={() => onView(Views.DAY)} className={cn(btn, view === Views.DAY ? "bg-blue-600 text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200")}>Día</button><button onClick={() => onView(Views.WEEK)} className={cn(btn, view === Views.WEEK ? "bg-blue-600 text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200")}>Semana</button><button onClick={() => onView(Views.MONTH)} className={cn(btn, view === Views.MONTH ? "bg-blue-600 text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200")}>Mes</button></div>
     </div>
