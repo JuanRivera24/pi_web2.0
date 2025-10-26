@@ -41,7 +41,7 @@ const servicios: Service[] = [
     id: 202,
     title: "Afeitado Clásico",
     category: "Barba",
-    image: "/Images/afeitado.jpg",
+    image: "/Images/afeitado.jpeg",
     details:
       "Duración 30 min. Afeitado tradicional con toalla caliente, navaja y bálsamo calmante para un acabado suave.",
     options: [{ name: "Afeitado Clásico", price: "$18.000" }],
@@ -68,7 +68,7 @@ const servicios: Service[] = [
     id: 203,
     title: "Arreglo de Barba",
     category: "Barba",
-    image: "/Images/barba.jpg",
+    image: "/Images/barba.jpeg",
     details:
       "Duración 25 min. Perfilado y diseño de barba con máquina y navaja, finalizando con aceites hidratantes.",
     options: [{ name: "Arreglo de Barba", price: "$15.000" }],
@@ -77,7 +77,7 @@ const servicios: Service[] = [
     id: 205,
     title: "Corte Clásico",
     category: "Cabello",
-    image: "/Images/corte-clasico.jpg",
+    image: "/Images/corte-clasico.jpeg",
     details:
       "Duración 40 min. Corte tradicional con estilo, lavado y acabado con productos de fijación ligera.",
     options: [{ name: "Corte Clásico", price: "$20.000" }],
@@ -122,7 +122,7 @@ const servicios: Service[] = [
     id: 211,
     title: "Tinte Capilar",
     category: "Capilar",
-    image: "/Images/color.jpg",
+    image: "/Images/color.jpeg",
     details:
       "Duración 45 min. Coloración completa del cabello con productos de alta calidad y asesoría de tono.",
     options: [{ name: "Tinte Capilar", price: "$30.000" }],
