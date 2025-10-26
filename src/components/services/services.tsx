@@ -11,7 +11,7 @@ import { useRouter } from "next/navigation";
 const services = [
  { id: 201, title: "Corte Premium", description: "Asesoría de estilo...", image: "/Images/premium.png" },
  { id: 204, title: "Ritual Completo", description: "La experiencia completa...", image: "/Images/completo.jpeg" },
- { id: 202, title: "Afeitado Clásico", description: "Relájate con el ritual...", image: "public\Images\afeitado.jpg" },
+ { id: 202, title: "Afeitado Clásico", description: "Relájate con el ritual...", image: "public/Images/afeitado.jpg" },
  { id: 209, title: "Limpieza Facial", description: "Revitaliza tu piel...", image: "/Images/limpiezap.jpg" },
  { id: 215, title: "Paquete Ejecutivo", description: "El paquete definitivo...", image: "/Images/paquete.jpg" },
 ];
