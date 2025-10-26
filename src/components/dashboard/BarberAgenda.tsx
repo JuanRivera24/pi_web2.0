@@ -26,8 +26,12 @@ export default function BarberAgenda() {
   const [editingCitaId, setEditingCitaId] = useState<string | null>(null);
   const [newHour, setNewHour] = useState<string>("");
   const [modifying, setModifying] = useState(false);
+  
+  // --- Estado para evitar errores de hidratación ---
+  const [isClient, setIsClient] = useState(false);
+  
   const API_URL = process.env.NEXT_PUBLIC_API_URL;
-  const hours = useMemo(() => Array.from({ length: 12 }, (_, i) => i + 10), []);
+  const hours = useMemo(() => Array.from({ length: 13 }, (_, i) => i + 10), []); // 10, 11, ..., 22
 
   const showToast = (message: string) => {
     setToast(message);
@@ -36,6 +40,9 @@ export default function BarberAgenda() {
 
   // --- LÓGICA DE FETCH ---
   useEffect(() => {
+    // Activar el estado de cliente solo en el navegador
+    setIsClient(true);
+
     const fetchAllCitas = async () => {
       setLoading(true);
       try {
@@ -54,11 +61,10 @@ export default function BarberAgenda() {
         else { setError("No se pudieron cargar las citas. Intenta de nuevo más tarde."); }
       } finally { setLoading(false); }
     };
-    // Comentario eslint-disable eliminado
     fetchAllCitas();
   }, [API_URL]);
 
-  // --- LÓGICA DE HANDLERS ---
+  // --- LÓGICA DE HANDLERS (SIN CAMBIOS EN LA LÓGICA DE GUARDADO) ---
   const handleModificarCita = async () => {
       if (!editingCitaId || !newHour) return;
       setModifying(true);
@@ -70,11 +76,32 @@ export default function BarberAgenda() {
           nuevaFechaInicio.setHours(Number(newHour), 0, 0, 0);
           const nuevaFechaFin = new Date(nuevaFechaInicio.getTime() + duracion);
 
+          // VALIDACIÓN DE HORA DE CIERRE (Añadida por si acaso, aunque el select debería prevenirlo)
+          if (nuevaFechaFin.getHours() > 22 || (nuevaFechaFin.getHours() === 22 && nuevaFechaFin.getMinutes() > 0)) {
+               showToast("Error: La cita excede la hora de cierre (10pm).");
+               setModifying(false);
+               return;
+          }
+
           if (nuevaFechaInicio < new Date()) {
               showToast("No puedes mover una cita a una hora que ya pasó.");
               setModifying(false);
               return;
           }
+
+          // VALIDACIÓN DE CONFLICTO (Añadida por si acaso, aunque el select debería prevenirlo)
+           const isTaken = citas.some(otraCita => 
+                otraCita.id !== citaOriginalCompleta.id &&
+                String(otraCita.barberId) === String(citaOriginalCompleta.barberId) &&
+                new Date(otraCita.fechaInicio) < nuevaFechaFin &&
+                new Date(otraCita.fechaFin) > nuevaFechaInicio
+            );
+           if(isTaken) {
+                showToast("Error: Conflicto de horario. El barbero ya está ocupado.");
+                setModifying(false);
+                return;
+           }
+
 
           const updatePayload = {
               ...citaOriginalCompleta,
@@ -150,6 +177,8 @@ export default function BarberAgenda() {
         {citas.map((cita) => {
           const fechaCita = new Date(cita.fechaInicio);
           const isEditing = editingCitaId === cita.id;
+          const duracionMs = new Date(cita.fechaFin).getTime() - new Date(cita.fechaInicio).getTime(); 
+
           let serviciosTexto = 'No especificado';
           try {
               const detalles = JSON.parse(cita.serviciosDetalle);
@@ -169,19 +198,54 @@ export default function BarberAgenda() {
               </div>
               <div className="mt-4 border-t border-white/10 pt-4 grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-300">
                 <div className="space-y-3">
-                  <p className="flex items-center gap-2"><Calendar size={16} className="text-gray-400"/> <strong className="font-semibold text-white">Fecha:</strong> {fechaCita.toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
+                  <p className="flex items-center gap-2">
+                    <Calendar size={16} className="text-gray-400"/> <strong className="font-semibold text-white">Fecha:</strong> 
+                    {isClient ? fechaCita.toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) : '...'}
+                  </p>
                   {!isEditing ? (
-                    <p className="flex items-center gap-2"><Clock size={16} className="text-gray-400"/> <strong className="font-semibold text-white">Hora:</strong> {fechaCita.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}</p>
+                    <p className="flex items-center gap-2">
+                      <Clock size={16} className="text-gray-400"/> <strong className="font-semibold text-white">Hora:</strong> 
+                      {isClient ? fechaCita.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }) : '...'}
+                    </p>
                   ) : (
                     <div className="flex items-center gap-2">
                       <label htmlFor={`hora-${cita.id}`} className="font-semibold text-white flex items-center gap-2"><Clock size={16} className="text-gray-400"/> Hora:</label>
                       <select id={`hora-${cita.id}`} value={newHour} onChange={(e) => setNewHour(e.target.value)} className="bg-gray-700 border border-gray-600 rounded-lg px-3 py-1.5 text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        
                         {hours.map((hour) => {
-                            const now = new Date();
-                            const isToday = fechaCita.toDateString() === now.toDateString();
-                            const isPast = isToday && hour <= now.getHours();
-                            return (<option key={hour} value={hour} disabled={isPast}>{hour}:00 {isPast ? "(Pasado)" : ""}</option>);
+                            let isDisabled = true;
+                            let label = "";
+
+                            if (isClient) {
+                                const now = new Date();
+                                const isToday = fechaCita.toDateString() === now.toDateString();
+                                const potentialStart = new Date(fechaCita);
+                                potentialStart.setHours(hour, 0, 0, 0);
+                                const potentialEnd = new Date(potentialStart.getTime() + duracionMs);
+
+                                // --- ¡CORRECCIÓN AQUÍ! ---
+                                // Se cambió de '<' a '<=' para incluir la hora actual.
+                                const isPast = isToday && hour <= now.getHours(); 
+                                // --- FIN DE LA CORRECCIÓN ---
+
+                                const exceedsClose = (potentialEnd.getHours() > 22) || (potentialEnd.getHours() === 22 && potentialEnd.getMinutes() > 0);
+                                const isTaken = citas.some(otraCita => 
+                                    otraCita.id !== cita.id &&
+                                    String(otraCita.barberId) === String(cita.barberId) &&
+                                    new Date(otraCita.fechaInicio) < potentialEnd &&
+                                    new Date(otraCita.fechaFin) > potentialStart
+                                );
+                                
+                                isDisabled = isPast || exceedsClose || isTaken;
+                                
+                                if (isPast) label = " (Pasado)";
+                                else if (exceedsClose) label = " (Excede cierre)";
+                                else if (isTaken) label = " (Ocupado)";
+                            }
+                            
+                            return (<option key={hour} value={hour} disabled={isDisabled}>{hour}:00 {isClient ? label : ""}</option>);
                         })}
+
                       </select>
                     </div>
                   )}
