@@ -21,37 +21,37 @@ export default function Footer() {
       nombre: "Sede C.C Puerta del Norte",
       direccion: "Autopista Nte. #34-67, Bello, Antioquia",
       telefono: "+57 300 123 4567",
-      horario: "Lun-Sab: 9:00 AM - 8:00 PM"
+      horario: "Lun-Sab: 9:00 AM - 10:15 PM"
     },
     {
       nombre: "Sede C.C Parque Fabricato",
       direccion: "Cra. 50 #38a-185, Bello, Antioquia",
       telefono: "+57 300 123 4568",
-      horario: "Lun-Sab: 9:00 AM - 8:00 PM"
+      horario: "Lun-Sab: 9:00 AM - 10:15 PM"
     },
     {
       nombre: "Sede C.C La Central",
       direccion: "Cl. 49B #21-38, Medellín, Antioquia",
       telefono: "+57 300 123 4569",
-      horario: "Lun-Sab: 9:00 AM - 8:00 PM"
+      horario: "Lun-Sab: 9:00 AM - 10:15 PM"
     },
     {
       nombre: "Sede C.C Los Molinos",
       direccion: "Cl. 30A #82A-26, Medellín, Antioquia",
       telefono: "+57 300 123 4570",
-      horario: "Lun-Sab: 9:00 AM - 8:00 PM"
+      horario: "Lun-Sab: 9:00 AM - 10:15 PM"
     },
     {
       nombre: "Sede C.C Santafé",
       direccion: "Carrera 43A, Cl. 7 Sur #170, Medellín",
       telefono: "+57 300 123 4571",
-      horario: "Lun-Sab: 9:00 AM - 8:00 PM"
+      horario: "Lun-Sab: 9:00 AM - 10:15 PM"
     },
     {
       nombre: "Sede C.C Premium Plaza",
       direccion: "Cra. 43A #30-25, Medellín, Antioquia",
       telefono: "+57 300 123 4572",
-      horario: "Lun-Sab: 9:00 AM - 8:00 PM"
+      horario: "Lun-Sab: 9:00 AM - 10:15 PM"
     }
   ];
 
