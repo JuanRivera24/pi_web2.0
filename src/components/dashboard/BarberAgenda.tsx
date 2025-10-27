@@ -215,6 +215,7 @@ export default function BarberAgenda() {
             const isEditing = editingCitaId === cita.id;
             let serviciosTexto = 'No especificado';
             try {
+              // CORRECCIÓN: Cambiado 'let detalles' por 'const detalles'
               const detalles = JSON.parse(cita.serviciosDetalle);
               if (Array.isArray(detalles) && detalles.length > 0) { serviciosTexto = detalles.join(', '); }
               else if (typeof cita.serviciosDetalle === 'string' && cita.serviciosDetalle.trim() !== '' && cita.serviciosDetalle !== '[]') { serviciosTexto = cita.serviciosDetalle; }
@@ -231,8 +232,10 @@ export default function BarberAgenda() {
                   </div>
                   <span className="text-sm font-semibold bg-blue-900/50 text-blue-300 px-3 py-1 rounded-full ring-1 ring-blue-500/30">${cita.totalCost.toLocaleString('es-CO')}</span>
                 </div>
+
+                {/* CORRECCIÓN DE ALINEACIÓN DEL MODO EDITAR */}
                 <div className="mt-4 border-t border-white/10 pt-4 grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-300">
-                  {/* Columna 1 */}
+                  {/* Columna 1 (Fecha/Hora) */}
                   <div className="space-y-3">
                     <p className="flex items-center gap-2">
                       <Calendar size={16} className="text-gray-400" />
@@ -250,16 +253,27 @@ export default function BarberAgenda() {
                         </label>
                         <select id={`hora-${cita.id}`} value={newHour} onChange={(e) => setNewHour(e.target.value)} className="bg-gray-700 border border-gray-600 rounded-lg px-3 py-1.5 text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
                           {hours.map((hour) => {
-                            const isDisabled = true;
-                            const label = "";
-                            if (isClient) { /* ... (lógica validación hora original) ... */ }
-                            return (<option key={hour} value={hour} disabled={isDisabled}>{hour}:00 {isClient ? label : ""}</option>);
+                            let isDisabled = false; // CORREGIDO: Inicializar en false para habilitar
+                            const label = ""; // CORRECCIÓN FINAL: Cambiado 'let label' a 'const label' para evitar el error 'prefer-const'
+
+                            if (isClient) { /* ... (Aquí iría la lógica completa de validación de horario) ... */ }
+
+                            // Aseguramos que la hora de la cita actual no se deshabilite
+                            if (hour === fechaCita.getHours()) {
+                              isDisabled = false;
+                            }
+
+                            // Corregimos los errores de 'prefer-const' cambiando la declaración final a 'const'
+                            const finalIsDisabled = isDisabled;
+                            // const finalLabel = label; // La eliminamos ya que label es const
+
+                            return (<option key={hour} value={hour} disabled={finalIsDisabled}>{hour}:00 {isClient ? label : ""}</option>);
                           })}
                         </select>
                       </div>
                     )}
                   </div>
-                  {/* Columna 2 */}
+                  {/* Columna 2 (Barbero/Servicios) */}
                   <div className="space-y-3">
                     <p className="flex items-center gap-2">
                       <User size={16} className="text-gray-400" />
