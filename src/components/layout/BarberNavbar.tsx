@@ -2,100 +2,107 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useState } from "react"; // 1. Importamos useState
+// --- AÑADIR React ---
+import React, { useState, useEffect } from "react";
 import { UserButton, useUser } from "@clerk/nextjs";
 import { Link as ScrollLink } from "react-scroll";
 import { usePathname } from 'next/navigation';
 
-// --- COMPONENTE INTERNO PARA LOS ENLACES (para no repetir código) ---
-const NavLinks = ({ onLinkClick }: { onLinkClick?: () => void }) => {
+// --- COMPONENTE INTERNO PARA LOS ENLACES (CON TIPO DE RETORNO EXPLÍCITO) ---
+const NavLinks = ({ onLinkClick }: { onLinkClick?: () => void }): React.ReactElement => {
   const pathname = usePathname();
   const homePath = "/dashboard/barber";
   const isHomePage = pathname === homePath;
-
   const commonLinkClass = "hover:text-white transition-colors cursor-pointer block py-2";
-
-  const handleClick = () => {
-    if (onLinkClick) {
-      onLinkClick();
-    }
-  };
+  const handleClick = () => { if (onLinkClick) { onLinkClick(); } };
 
   return (
-    <>
+    <React.Fragment>
       {/* 1. Agenda */}
       {isHomePage ? (
         <li><ScrollLink to="citas" smooth duration={600} offset={-80} className={commonLinkClass} onClick={handleClick}>Agenda</ScrollLink></li>
       ) : (
         <li><Link href={`${homePath}#citas`} className={commonLinkClass} onClick={handleClick}>Agenda</Link></li>
       )}
-      
       {/* 2. Galería */}
       <li><Link href="/dashboard/barber/gallery" className={commonLinkClass} onClick={handleClick}>Galería</Link></li>
-      
       {/* 3. Contacto */}
       {isHomePage ? (
         <li><ScrollLink to="contacto" smooth duration={600} offset={-50} className={commonLinkClass} onClick={handleClick}>Contacto</ScrollLink></li>
       ) : (
         <li><Link href={`${homePath}#contacto`} className={commonLinkClass} onClick={handleClick}>Contacto</Link></li>
       )}
-
       {/* 4. Dashboard */}
-      <li>
-        <Link 
-          href="https://kingdombarberdashboard.streamlit.app" 
-          target="_blank" 
-          rel="noopener noreferrer" 
-          className={commonLinkClass}
-          onClick={handleClick}
-        >
-          Dashboard
-        </Link>
-      </li>
-    </>
+      <li> <Link href="https://kingdombarberdashboard.streamlit.app" target="_blank" rel="noopener noreferrer" className={commonLinkClass} onClick={handleClick}> Dashboard </Link> </li>
+    </React.Fragment>
   );
 };
 
 
-// --- NAVBAR PRINCIPAL ---
+// --- NAVBAR PRINCIPAL (CON CORRECCIÓN HIDRATACIÓN REVISADA) ---
 export default function BarberNavbar() {
-  const { user } = useUser();
-  const [isMenuOpen, setIsMenuOpen] = useState(false); // 2. Estado para el menú móvil
+  const { user, isLoaded } = useUser();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  // Determinar si podemos mostrar contenido dependiente del cliente/auth
+  // Solo es true si estamos en cliente Y Clerk ha cargado
+  const canRenderClientContent = isClient && isLoaded;
 
   return (
     <nav className="fixed top-0 left-0 w-full bg-blue-900 shadow-md px-6 py-4 flex justify-between items-center z-50">
       <Link href="/dashboard/barber">
-        <Image 
-          src="/Images/Logo.png" 
-          alt="Logo de la página" 
-          width={150} 
+        {/* Se mantiene el código original que mantenía el tamaño h-10 */}
+        <Image
+          src="/Images/Logo.png"
+          alt="Logo de la página"
+          width={150}
           height={40}
-          className="h-10 w-auto" 
+          className="h-10 w-auto"
+          style={{ height: '2.5rem', width: 'auto' }} // CSS para mantener aspect ratio
+          priority
         />
       </Link>
-      
-      {/* --- MENÚ DE ESCRITORIO (se oculta en móvil) --- */}
+
+      {/* --- MENÚ DE ESCRITORIO --- */}
       <div className="hidden md:flex items-center space-x-6">
         <ul className="flex space-x-6 text-white/90 font-medium items-center">
           <NavLinks />
         </ul>
-        <div className="flex items-center space-x-4">
-          <span className="text-white/80 hidden sm:block">
-            Hola, {user?.firstName}
-          </span>
-          <UserButton afterSignOutUrl="/" />
+
+        {/* --- Renderizado Condicional UserButton (Escritorio) --- */}
+        <div className="flex items-center space-x-4 h-8"> {/* Contenedor con altura */}
+          {canRenderClientContent ? (
+            <>
+              {user && (<span className="text-white/80 hidden sm:block"> Hola, {user.firstName} </span>)}
+              <UserButton afterSignOutUrl="/" />
+            </>
+          ) : (
+            <div className="h-8 w-28 bg-gray-700 rounded animate-pulse"></div> // Placeholder
+          )}
         </div>
+        {/* --- Fin Renderizado Condicional --- */}
       </div>
 
-      {/* --- BOTÓN DE HAMBURGUESA (solo visible en móvil) --- */}
+      {/* --- BOTÓN HAMBURGUESA Y USERBUTTON MÓVIL --- */}
       <div className="md:hidden flex items-center">
-        <UserButton afterSignOutUrl="/" />
-        <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="ml-4 text-white focus:outline-none">
-          {isMenuOpen ? (
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+        {/* --- Renderizado Condicional UserButton (Móvil) --- */}
+        <div className="h-8 w-8"> {/* Contenedor fijo */}
+          {canRenderClientContent ? (
+            <UserButton afterSignOutUrl="/" />
           ) : (
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16m-7 6h7" /></svg>
+            <div className="h-full w-full rounded-full bg-gray-700 animate-pulse"></div> // Placeholder
           )}
+        </div>
+        {/* --- Fin Renderizado Condicional --- */}
+
+        <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="ml-4 text-white focus:outline-none" aria-label={isMenuOpen ? "Cerrar menú" : "Abrir menú"}>
+          {isMenuOpen ? ( /* Icono X */ <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>)
+            : ( /* Icono Hamburguesa */ <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16m-7 6h7" /></svg>)}
         </button>
       </div>
 

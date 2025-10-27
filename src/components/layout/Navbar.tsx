@@ -109,6 +109,7 @@ const Navbar: FC = () => {
           width={150} 
           height={40}
           className="w-auto h-10"
+          style={{ height: '2.5rem', width: 'auto' }} // <-- CORRECCIÓN AÑADIDA
         />
       </Link>
 

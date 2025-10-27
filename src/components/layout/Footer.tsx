@@ -19,13 +19,14 @@ export default function Footer() {
 
   // 2. ACTUALIZAR ARRAY DE DATOS
   const sedes: Sede[] = [
+    // ... (Tu array de sedes sigue igual, lo omito por brevedad) ...
     {
       nombre: 'Sede C.C Puerta del Norte',
       direccion: 'Autopista Nte. #34-67, Bello, Antioquia',
       telefono: '+57 300 123 4567',
       horario: 'Lun-Sab: 9:00 AM - 10:15 PM',
       googleMapsUrl:
-        'https://www.google.com/maps/search/?api=1&query=C.C+Puerta+del+Norte+Bello', // <-- Añadido
+        'https://www.google.com/maps/search/?api=1&query=C.C+Puerta+del+Norte+Bello', 
     },
     {
       nombre: 'Sede C.C Parque Fabricato',
@@ -33,7 +34,7 @@ export default function Footer() {
       telefono: '+57 300 123 4568',
       horario: 'Lun-Sab: 9:00 AM - 10:15 PM',
       googleMapsUrl:
-        'https://www.google.com/maps/search/?api=1&query=C.C+Parque+Fabricato+Bello', // <-- Añadido
+        'https://www.google.com/maps/search/?api=1&query=C.C+Parque+Fabricato+Bello', 
     },
     {
       nombre: 'Sede C.C La Central',
@@ -41,7 +42,7 @@ export default function Footer() {
       telefono: '+57 300 123 4569',
       horario: 'Lun-Sab: 9:00 AM - 10:15 PM',
       googleMapsUrl:
-        'https://www.google.com/maps/search/?api=1&query=C.C+La+Central+Medellín', // <-- Añadido
+        'https://www.google.com/maps/search/?api=1&query=C.C+La+Central+Medellín', 
     },
     {
       nombre: 'Sede C.C Los Molinos',
@@ -49,7 +50,7 @@ export default function Footer() {
       telefono: '+57 300 123 4570',
       horario: 'Lun-Sab: 9:00 AM - 10:15 PM',
       googleMapsUrl:
-        'https://www.google.com/maps/search/?api=1&query=C.C+Los+Molinos+Medellín', // <-- Añadido
+        'https://www.google.com/maps/search/?api=1&query=C.C+Los+Molinos+Medellín', 
     },
     {
       nombre: 'Sede C.C Santafé',
@@ -57,7 +58,7 @@ export default function Footer() {
       telefono: '+57 300 123 4571',
       horario: 'Lun-Sab: 9:00 AM - 10:15 PM',
       googleMapsUrl:
-        'https://www.google.com/maps/search/?api=1&query=C.C+Santafé+Medellín', // <-- Añadido
+        'https://www.google.com/maps/search/?api=1&query=C.C+Santafé+Medellín', 
     },
     {
       nombre: 'Sede C.C Premium Plaza',
@@ -65,7 +66,7 @@ export default function Footer() {
       telefono: '+57 300 123 4572',
       horario: 'Lun-Sab: 9:00 AM - 10:15 PM',
       googleMapsUrl:
-        'https://www.google.com/maps/search/?api=1&query=C.C+Premium+Plaza+Medellín', // <-- Añadido
+        'https://www.google.com/maps/search/?api=1&query=C.C+Premium+Plaza+Medellín', 
     },
   ];
 
@@ -128,13 +129,16 @@ export default function Footer() {
           <div className="flex flex-col md:flex-row justify-between items-center gap-8">
             <div className="text-center md:text-left">
               <a href={pathname}>
+                {/* ----- INICIO DE LA CORRECCIÓN ----- */}
                 <Image
                   src="/Images/Logo.png"
                   alt="Logo Kingdom Barber"
-                  width={180}
-                  height={48}
-                  className="h-10 w-auto mb-2 mx-auto md:mx-0"
+                  width={180} // Dejas tus props originales
+                  height={48} // Dejas tus props originales
+                  className="h-10 w-auto mb-2 mx-auto md:mx-0" // Tu clase 'h-10' que lo hace chiquito
+                  style={{ width: 'auto' }} // <-- AÑADE ESTA LÍNEA
                 />
+                {/* ----- FIN DE LA CORRECCIÓN ----- */}
               </a>
               <p className="text-blue-300">Tu estilo, nuestra pasión</p>
             </div>
@@ -203,4 +207,4 @@ export default function Footer() {
       </div>
     </footer>
   );
-} 
+}
