@@ -101,16 +101,17 @@ const Navbar: FC = () => {
   }, [isSignedIn]);
 
   return (
-    <nav className="fixed top-0 left-0 w-full bg-blue-900 shadow-md px-6 py-4 flex justify-between items-center z-50">
+    <nav className="fixed top-0 left-0 w-full bg-blue-900 shadow-md px-6 py-3 flex justify-between items-center z-50">
       <Link href="/">
-        <Image 
-          src="/Images/Logo.png" 
-          alt="Logo de la página" 
-          width={150} 
-          height={40}
-          className="w-auto h-10"
-          style={{ height: '2.5rem', width: 'auto' }} // <-- CORRECCIÓN AÑADIDA
-        />
+        <div className="relative h-12 w-12">
+          <Image
+            src="/Images/Logo.png"
+            alt="Logo de la página"
+            fill 
+            className="object-contain" 
+            priority
+          />
+        </div>
       </Link>
 
       {/* --- MENÚ DE ESCRITORIO (se oculta en móvil) --- */}
@@ -162,11 +163,7 @@ const Navbar: FC = () => {
             <SignedOut>
               <li className="w-full pt-4 border-t border-white/20">
                 <Menu as="div" className="relative w-full">
-                  
-                  {/* --- AQUÍ ESTABA EL ERROR --- */}
                   <div><Menu.Button className="bg-blue-300 text-blue-900 px-4 py-2 rounded-lg hover:bg-blue-200 font-semibold w-full">Ingresar</Menu.Button></div>
-                  {/* --- FIN DE LA CORRECCIÓN --- */}
-
                   <Transition as={Fragment} enter="transition ease-out duration-100" enterFrom="transform opacity-0 scale-95" enterTo="transform opacity-100 scale-100" leave="transition ease-in duration-75" leaveFrom="transform opacity-100 scale-100" leaveTo="transform opacity-0 scale-95">
                     <Menu.Items className="absolute right-0 mt-2 w-full origin-top-right bg-white rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
                       <div className="py-1">

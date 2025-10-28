@@ -54,18 +54,17 @@ export default function BarberNavbar() {
   const canRenderClientContent = isClient && isLoaded;
 
   return (
-    <nav className="fixed top-0 left-0 w-full bg-blue-900 shadow-md px-6 py-4 flex justify-between items-center z-50">
+    <nav className="fixed top-0 left-0 w-full bg-blue-900 shadow-md px-6 py-3 flex justify-between items-center z-50">
       <Link href="/dashboard/barber">
-        {/* Se mantiene el código original que mantenía el tamaño h-10 */}
-        <Image
-          src="/Images/Logo.png"
-          alt="Logo de la página"
-          width={150}
-          height={40}
-          className="h-10 w-auto"
-          style={{ height: '2.5rem', width: 'auto' }} // CSS para mantener aspect ratio
-          priority
-        />
+        <div className="relative h-12 w-12">
+          <Image
+            src="/Images/Logo.png"
+            alt="Logo de la página"
+            fill 
+            className="object-contain" 
+            priority
+          />
+        </div>
       </Link>
 
       {/* --- MENÚ DE ESCRITORIO --- */}
