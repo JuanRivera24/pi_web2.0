@@ -7,7 +7,6 @@ const isPublicRoute = createRouteMatcher([
   '/',
   '/services',
   '/gallery',
-  // ...otras rutas públicas
 ]);
 
 // Define rutas protegidas específicas de barberos

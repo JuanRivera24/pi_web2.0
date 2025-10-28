@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import Image from "next/image";
-// --- AÑADIR React ---
 import React, { useState, useEffect } from "react";
 import { UserButton, useUser } from "@clerk/nextjs";
 import { Link as ScrollLink } from "react-scroll";

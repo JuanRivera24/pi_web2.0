@@ -13,7 +13,6 @@ export default function BarberLoginForm() {
       </h2>
       <SignIn
         routing="hash"
-        // ¡Esta es la línea clave!
         // Después de iniciar sesión, redirige al dashboard del barbero.
         redirectUrl="/dashboard/barber"
       />

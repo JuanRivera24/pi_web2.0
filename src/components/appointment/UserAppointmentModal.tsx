@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-// Importar el nuevo icono
 import { Calendar, Clock, User, Scissors, MapPin, Edit, Trash2, X, MessageSquare } from "lucide-react";
 import { AppointmentEvent } from "./AppointmentCalendar"; // Asegúrate que la ruta sea correcta
 import ChatModal from "./ChatModal"; // Importar el ChatModal

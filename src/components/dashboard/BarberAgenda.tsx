@@ -1,11 +1,8 @@
 "use client";
 import { useEffect, useState, useMemo } from "react";
-// --- AÑADIR IMPORTS ---
 import { Calendar, Clock, User, Scissors, MapPin, Edit, Trash2, Save, XCircle, MessageSquare } from "lucide-react";
 import ChatModal from "@/components/appointment/ChatModal"; // Asegúrate que la ruta es correcta
 import { useUser } from "@clerk/nextjs"; // Importar useUser
-// --- FIN AÑADIR IMPORTS ---
-
 
 // --- INTERFAZ ---
 interface CitaEnDashboard {

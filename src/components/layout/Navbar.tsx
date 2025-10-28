@@ -5,7 +5,6 @@ import Image from "next/image";
 import { FC, useState, useEffect, Fragment } from "react";
 // --- Hooks añadidos ---
 import { usePathname, useSearchParams, useRouter } from 'next/navigation';
-// --- Fin Hooks añadidos ---
 import { SignedIn, SignedOut, UserButton, useUser } from "@clerk/nextjs";
 import { Menu, Transition } from "@headlessui/react";
 import { Link as ScrollLink } from "react-scroll";

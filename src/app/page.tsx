@@ -1,6 +1,5 @@
 "use client"; 
 
-// --- AJUSTE 1: Importar Suspense ---
 import { Suspense } from 'react';
 import Image from "next/image";
 import { Link as ScrollLink } from "react-scroll";
@@ -8,7 +7,6 @@ import ContactSection from "@/components/contactform/ContactForm";
 import AppointmentsCalendar from "@/components/appointment/AppointmentCalendar";
 import ServicesAccordion from "@/components/services/services";
 
-// --- AJUSTE 2: Definir un componente de fallback (esqueleto) ---
 const LoadingCalendar = () => (
  <div className="w-full max-w-7xl mx-auto p-6 scroll-mt-24 bg-gray-900 rounded-2xl">
     <div className="text-center mb-8"><h2 className="text-4xl font-bold text-white">Agenda tu cita 💈</h2><p className="text-gray-300 mt-2">Horario: <b>10:00 am - 10:00 pm</b></p></div>

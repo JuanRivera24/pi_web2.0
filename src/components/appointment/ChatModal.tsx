@@ -5,7 +5,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, Send } from 'lucide-react';
 // Firebase Imports
 import { initializeApp, getApps, getApp, FirebaseApp, FirebaseOptions } from 'firebase/app';
-// CORRECCIÓN: 'setLogLevel' eliminado porque no se usaba.
 import { getFirestore, collection, addDoc, serverTimestamp, query, orderBy, onSnapshot, Timestamp, Firestore, doc } from 'firebase/firestore';
 import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged, Auth } from 'firebase/auth';
 
