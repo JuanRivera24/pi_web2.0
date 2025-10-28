@@ -79,7 +79,7 @@ const localizer = dateFnsLocalizer({
   locales: { es },
 });
 
-const BOOKING_BUFFER_MINUTES = 40;
+const BOOKING_BUFFER_MINUTES = 30;
 
 // --- COMPONENTE PRINCIPAL ---
 
