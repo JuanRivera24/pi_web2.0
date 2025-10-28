@@ -157,7 +157,7 @@ const Navbar: FC = () => {
 
       {/* --- MENÚ DESPLEGABLE MÓVIL --- */}
       {isMenuOpen && (
-        <div className="md:hidden absolute top-full left-0 w-full bg-blue-900 shadow-lg px-6 pb-6">
+        <div className="md:hidden absolute top-full left-0 w-full bg-blue-900 shadow-lg p-6">
           <ul className="flex flex-col space-y-4 text-white/90 font-medium items-center text-center">
             <NavLinks onLinkClick={() => setIsMenuOpen(false)} />
             <SignedOut>
